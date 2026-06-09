@@ -1,0 +1,28 @@
+Zadanie 6 — Bezpieczeństwo przesyłania danych
+Piotr Gugnowski, nr indeksu 320690
+
+=== PLIKI ===
+
+README.md
+  Instrukcja budowania i uruchamiania programu verify_bijection.
+
+justfile
+  Skrypt budowania (narzędzie just). Komendy:
+    just build  — kompiluje program verify_bijection
+    just run    — kompiluje i uruchamia program
+    just clean  — usuwa plik wykonywalny
+
+verify_bijection.cpp
+  Program weryfikujący, że odwzorowanie (b15, b16) → CRC-16/Modbus
+  jest bijekcją dla każdego z 65 536 możliwych stanów startowych
+  rejestru CRC. Wynik używany jako dowód w zadaniu 6b.
+  Wejście:  brak (pełne wyczerpujące sprawdzenie)
+  Wyjście:  liczba stanów z kolizją oraz werdykt TAK/NIE
+
+=== KATALOG .raport/ ===
+
+.raport/projekt_6.tex
+  Raport projektu (źródło LaTeX).
+
+.raport/projekt_6.pdf
+  Skompilowany raport projektu.

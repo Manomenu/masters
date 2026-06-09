@@ -1,0 +1,13 @@
+cxxflags := "-std=c++17 -O3 -march=native -Wall -Wextra"
+
+default: build
+
+build:
+    clang++ {{cxxflags}} -o verify_bijection verify_bijection.cpp
+    @echo "Built: verify_bijection"
+
+run: build
+    ./verify_bijection
+
+clean:
+    rm -f verify_bijection

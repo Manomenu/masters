@@ -1,0 +1,38 @@
+outputs/
+*.zip
+*.exe
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+desktop.ini
+
+# C++ build artifacts
+*.o
+*.out
+a.out
+*.dSYM/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+
+# LaTeX build artifacts
+*.aux
+*.log
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+*.toc
+*.lof
+*.lot
+*.bbl
+*.blg
+*.bcf
+*.run.xml

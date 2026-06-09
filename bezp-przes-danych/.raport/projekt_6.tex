@@ -1,0 +1,387 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[polish]{polski}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{etoolbox}
+\usepackage{url}
+
+% lstlisting nigdy nie łamany między stronami
+\BeforeBeginEnvironment{lstlisting}{\begin{minipage}{\linewidth}}
+\AfterEndEnvironment{lstlisting}{\end{minipage}}
+
+\geometry{margin=2cm}
+
+\definecolor{codebg}{rgb}{0.97,0.97,0.97}
+\definecolor{codekey}{rgb}{0.0,0.3,0.7}
+\definecolor{codecomment}{rgb}{0.2,0.5,0.2}
+\definecolor{codestring}{rgb}{0.6,0.1,0.1}
+
+\lstset{
+    language=Python,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{codekey}\bfseries,
+    commentstyle=\color{codecomment}\itshape,
+    stringstyle=\color{codestring},
+    backgroundcolor=\color{codebg},
+    frame=single,
+    framesep=4pt,
+    breaklines=true,
+    showstringspaces=false,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    xleftmargin=2em,
+    tabsize=4,
+    columns=fullflexible,
+    literate=
+        {ą}{{\k{a}}}1 {Ą}{{\k{A}}}1
+        {ę}{{\k{e}}}1 {Ę}{{\k{E}}}1
+        {ó}{{\'o}}1   {Ó}{{\'O}}1
+        {ś}{{\'s}}1   {Ś}{{\'S}}1
+        {ż}{{\.z}}1   {Ż}{{\.Z}}1
+        {ź}{{\'z}}1   {Ź}{{\'Z}}1
+        {ć}{{\'c}}1   {Ć}{{\'C}}1
+        {ń}{{\'n}}1   {Ń}{{\'N}}1
+        {ł}{{\l{}}}1  {Ł}{{\L{}}}1,
+}
+
+\title{Bezpiecze\'nstwo przesy{\l}ania danych, Zadanie~6}
+\author{Piotr Gugnowski, wydzia{\l} EiTI, nr indeksu 320690}
+\date{Czerwiec 2026}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\maketitle
+
+% ===============================================================================
+\section*{Opis sytuacji}
+% ===============================================================================
+
+Skaner zainstalowany przy jednostce master sieci Modbus RTU przechwycił
+ramkę \texttt{FC~0x10} (Write Multiple Registers) z~nieczytelnym 128-bitowym
+kodem dostępu. Znana jest jedynie suma kontrolna \textbf{CRC kodu~$= \texttt{0xA77C}$},
+wyznaczona zgodnie ze standardową specyfikacją Modbus CRC-16.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{llll}
+\toprule
+\textbf{Pole} & \textbf{Bajty} & \textbf{Wartość} & \textbf{Opis} \\
+\midrule
+Adres slave              & 1 & \texttt{0x0A}   & adres urządzenia docelowego \\
+Kod funkcji              & 1 & \texttt{0x10}   & Write Multiple Registers \\
+Adres pierwszego rej.    & 2 & \texttt{0x0000} & rejestr startowy kodu \\
+Adres ostatniego rej.    & 2 & \texttt{0x0008} & rejestry 0 do 7: kod, rejestr 8: CRC~kodu \\
+Liczba bajtów danych     & 1 & \texttt{0x12}   & 18~B = 16~B kodu + 2~B CRC~kodu \\
+\midrule
+Rejestr 0 (kod)          & 2 & \texttt{0x????} & bajty kodu 1 i~2 \\
+Rejestr 1 (kod)          & 2 & \texttt{0x????} & bajty kodu 3 i~4 \\
+Rejestr 2 (kod)          & 2 & \texttt{0x????} & bajty kodu 5 i~6 \\
+Rejestr 3 (kod)          & 2 & \texttt{0x????} & bajty kodu 7 i~8 \\
+Rejestr 4 (kod)          & 2 & \texttt{0x????} & bajty kodu 9 i~10 \\
+Rejestr 5 (kod)          & 2 & \texttt{0x????} & bajty kodu 11 i~12 \\
+Rejestr 6 (kod)          & 2 & \texttt{0x????} & bajty kodu 13 i~14 \\
+Rejestr 7 (kod)          & 2 & \texttt{0x????} & bajty kodu 15 i~16 \\
+\midrule
+Rejestr 8 (CRC kodu)     & 2 & \texttt{0xA77C} & CRC-16/Modbus z~16~B kodu \\
+\midrule
+CRC ramki Modbus         & 2 & \texttt{0x????} & CRC-16 całej ramki \\
+\bottomrule
+\end{tabular}
+\caption{Przechwycona ramka Modbus RTU. Pole danych: 8 rejestrów kodu
+         (16~B) + 1 rejestr CRC~kodu (2~B) = 18~B.}
+\end{table}
+
+% ===============================================================================
+\section*{Zadanie 6a: Odtworzenie kodu dostępu (4~pkt)}
+% ===============================================================================
+
+\subsection*{Treść zadania}
+
+Odtworzyć kod dostępu do zamka składu broni.
+
+% -----------------------------------------------------------------------------
+\subsection*{Analiza}
+
+Jedyna znana informacja o~kodzie to jego 16-bitowa suma kontrolna
+CRC-16/Modbus~$= \texttt{0xA77C}$.
+Warunku $\mathrm{CRC16}(k) = \texttt{0xA77C}$ spełnia nie jeden, lecz
+$2^{112}$ różnych 128-bitowych ciągów (dowód w~Zadaniu~6b).
+Nie jest zatem możliwe \textbf{jednoznaczne} odtworzenie kodu, można
+jedynie wygenerować \emph{jeden z~możliwych} kodów pasujących do danego CRC.
+
+% -----------------------------------------------------------------------------
+\subsection*{Metoda wyznaczenia przykładowego kodu}
+
+Korzystamy z~bijekcyjności odwzorowania
+$(b_{15},\, b_{16}) \mapsto \mathrm{CRC16}(\text{kod})$
+przy ustalonych pierwszych 14~bajtach (wykazanej w~Zadaniu~6b).
+
+\begin{enumerate}[label=\arabic*.]
+  \item Wybieramy dowolnie \textbf{pierwsze} 14~bajtów kodu
+        (bajty 1–14, lewa strona). Dla uproszczenia przyjmujemy zera:
+        \[
+          b_1 = b_2 = \cdots = b_{14} = \texttt{0x00}
+        \]
+        Dowolny inny wybór tych 14~bajtów również byłby poprawny
+        i~dałby inną parę $(b_{15}, b_{16})$ spełniającą warunek CRC.
+  \item Obliczamy stan rejestru CRC po przetworzeniu tych 14~bajtów.
+        CRC jest algorytmem \textbf{sekwencyjnym}: stan po bajcie $i$ zależy
+        wyłącznie od bajtów $b_1, \ldots, b_i$ i~nie wymaga znajomości
+        kolejnych bajtów. Bajty $b_{15}$, $b_{16}$ jeszcze nie zostały
+        przetworzone, więc stan $\mathrm{CRC\_state}_{14}$ liczymy
+        niezależnie od nich
+        (inicjalizacja \texttt{0xFFFF}, każdy bajt \texttt{0x00} daje XOR
+        bez zmiany, jedynie iteracje LFSR modyfikują stan):
+
+        \begin{center}
+        \small
+        \begin{tabular}{rll}
+        \toprule
+        \textbf{Nr bajtu} & \textbf{Bajt} & \textbf{Stan CRC po bajcie} \\
+        \midrule
+        init & & \texttt{0xFFFF} \\
+        1  & \texttt{0x00} & \texttt{0x40BF} \\
+        2  & \texttt{0x00} & \texttt{0xB001} \\
+        3  & \texttt{0x00} & \texttt{0xC071} \\
+        4  & \texttt{0x00} & \texttt{0x2400} \\
+        5  & \texttt{0x00} & \texttt{0x0024} \\
+        6  & \texttt{0x00} & \texttt{0x1B00} \\
+        7  & \texttt{0x00} & \texttt{0x001B} \\
+        8  & \texttt{0x00} & \texttt{0x0B40} \\
+        9  & \texttt{0x00} & \texttt{0xF00A} \\
+        10 & \texttt{0x00} & \texttt{0x0770} \\
+        11 & \texttt{0x00} & \texttt{0xE406} \\
+        12 & \texttt{0x00} & \texttt{0x0264} \\
+        13 & \texttt{0x00} & \texttt{0xEB03} \\
+        14 & \texttt{0x00} & \texttt{0x01AB} \\
+        \bottomrule
+        \end{tabular}
+        \end{center}
+        \[
+          \mathrm{CRC\_state}_{14} = \texttt{0x01AB}
+        \]
+  \item Bajtów 15 i~16 \textbf{nie przepuszczamy przez LFSR jako niewiadomych},
+        bo każda iteracja LFSR zależy od aktualnego LSB rejestru, który jest
+        wyznaczany dopiero po XOR z~bajtem wejściowym. Zamiast tego
+        \textbf{przeszukujemy} wszystkie $256 \times 256 = 65\,536$ możliwych
+        kombinacji $(b_{15}, b_{16})$: dla każdej pary obliczamy CRC ze~stanu
+        \texttt{0x01AB} i~sprawdzamy, czy wynik to \texttt{0xA77C}:
+        \[
+          \mathrm{crc16\_update}\bigl(\mathrm{crc16\_update}(\texttt{0x01AB},\,b_{15}),\,b_{16}\bigr)
+          \stackrel{?}{=} \texttt{0xA77C}
+        \]
+  \item Wynik: $b_{15} = \texttt{0xF9}$, $b_{16} = \texttt{0x0A}$.
+        Przebieg obliczeń:
+        \[
+          \texttt{0x01AB}
+          \xrightarrow{\;b_{15}=\texttt{0xF9}\;}
+          \texttt{0xFD80}
+          \xrightarrow{\;b_{16}=\texttt{0x0A}\;}
+          \texttt{0xA77C} \checkmark
+        \]
+\end{enumerate}
+
+% -----------------------------------------------------------------------------
+\subsection*{Przykładowy kod dostępu}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\toprule
+\textbf{Rejestr} & \textbf{Bajty (hex)} & \textbf{Opis} \\
+\midrule
+0 & \texttt{00 00} & bajty 1 i~2 \\
+1 & \texttt{00 00} & bajty 3 i~4 \\
+2 & \texttt{00 00} & bajty 5 i~6 \\
+3 & \texttt{00 00} & bajty 7 i~8 \\
+4 & \texttt{00 00} & bajty 9 i~10 \\
+5 & \texttt{00 00} & bajty 11 i~12 \\
+6 & \texttt{00 00} & bajty 13 i~14 \\
+7 & \texttt{F9 0A} & bajty 15 i~16 (wyznaczone z~CRC) \\
+\midrule
+\multicolumn{2}{l}{Kod (hex): \texttt{0000000000000000000000000000F90A}} \\
+\multicolumn{2}{l}{Weryfikacja: $\mathrm{CRC16}(\text{kod}) = \texttt{0xA77C}$} & $\checkmark$ \\
+\bottomrule
+\end{tabular}
+\caption{Jeden z~$2^{112}$ możliwych kodów dostępu pasujących do
+         CRC~$= \texttt{0xA77C}$.}
+\end{table}
+
+% -----------------------------------------------------------------------------
+\subsection*{Kompletna odtworzona ramka}
+
+Mając przykładowy kod, można uzupełnić całą ramkę Modbus.
+CRC~ramki obliczane jest ze~wszystkich bajtów od~adresu slave do~CRC~kodu
+włącznie (patrz Dodatek~B).
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lll}
+\toprule
+\textbf{Pole} & \textbf{Bajty (hex)} & \textbf{Obliczone CRC po tym polu} \\
+\midrule
+Adres slave \texttt{0x0A}       & \texttt{0A}    & \texttt{0x473F} \\
+Kod funkcji \texttt{0x10}       & \texttt{10}    & \texttt{0xDC06} \\
+Adres reg. \texttt{0x0000}      & \texttt{00 00} & \texttt{0x3902} \\
+Liczba reg. \texttt{0x0008}     & \texttt{00 08} & \texttt{0xB4C0} \\
+Liczba bajtów \texttt{0x12}     & \texttt{12}    & \texttt{0x5D34} \\
+Dane (14 bajtów \texttt{0x00})  & \texttt{00}$\times$14 & \texttt{0x228B} \\
+Dane bajt 15: \texttt{0xF9}     & \texttt{F9}    & \texttt{0xC8A8} \\
+Dane bajt 16: \texttt{0x0A}     & \texttt{0A}    & \texttt{0xB949} \\
+CRC~kodu \texttt{0xA77C}        & \texttt{A7 7C} & \texttt{0xF38D} \\
+\midrule
+\textbf{CRC ramki}              & \textbf{\texttt{8D F3}} & (bajt niski, bajt wysoki) \\
+\bottomrule
+\end{tabular}
+\caption{Krok po kroku obliczanie CRC ramki. Wartość CRC~$= \texttt{0xF38D}$;
+         w~ramce: bajt niski \texttt{0x8D} jako pierwszy, bajt wysoki \texttt{0xF3}
+         jako drugi.}
+\end{table}
+
+\noindent\textbf{Kompletna ramka (27 bajtów):}
+\begin{center}
+\ttfamily
+0A~10~00~00~00~08~12~
+00~00~00~00~00~00~00~00~00~00~00~00~00~00~F9~0A~
+A7~7C~
+8D~F3
+\end{center}
+
+% ===============================================================================
+\section*{Zadanie 6b: Liczba możliwych kodów dostępu (4~pkt)}
+% ===============================================================================
+
+\subsection*{Treść zadania}
+
+Ile jest możliwych kodów dostępu? Odpowiedź udowodnić.
+
+% -----------------------------------------------------------------------------
+\subsection*{Dowód}
+
+\textbf{Twierdzenie.} Liczba 128-bitowych kodów dostępu $k \in \{0,1\}^{128}$
+spełniających $\mathrm{CRC16}(k) = \texttt{0xA77C}$ wynosi dokładnie $2^{112}$.
+
+\medskip
+\noindent\textbf{Dowód.}
+
+Podzielmy 16-bajtowy kod na dwie części:
+\[
+  k = (\underbrace{b_1,\ldots,b_{14}}_{\text{prefiks},\ 112\text{ bitów}},\;
+       \underbrace{b_{15},\, b_{16}}_{\text{sufiks},\ 16\text{ bitów}})
+\]
+
+\noindent\textbf{Kluczowy lemat:} dla każdego wyboru prefiksu $(b_1,\ldots,b_{14})$
+istnieje \textbf{dokładnie jeden} sufiks $(b_{15}, b_{16})$ taki, że
+$\mathrm{CRC16}(k) = \texttt{0xA77C}$.
+
+Jeśli lemat jest prawdziwy, zliczanie jest natychmiastowe:
+\[
+  \underbrace{2^{112}}_{\text{możliwych prefiksów}}
+  \times
+  \underbrace{1}_{\text{sufiks na prefiks}}
+  = 2^{112}
+\]
+
+\noindent\textbf{Dowód lematu.}
+
+CRC jest algorytmem sekwencyjnym: jedyną ``pamięcią'' po przetworzeniu prefiksu
+jest bieżący stan rejestru $R \in \{0,\ldots,65535\}$ (liczba 16-bitowa).
+Bez względu na to, jakie bajty tworzyły prefiks, dwa prefiksy prowadzące
+do tego samego stanu $R$ są od tej chwili \textbf{nierozróżnialne} dla algorytmu.
+
+Lemat jest zatem równoważny stwierdzeniu:
+\begin{center}
+\textit{Dla każdego stanu startowego $R$, odwzorowanie
+$(b_{15}, b_{16}) \mapsto \mathrm{CRC16\_continue}(R,\, b_{15},\, b_{16})$
+jest bijekcją (każdy wynik CRC pojawia się dokładnie raz).}
+\end{center}
+
+Stany startowe to liczby 16-bitowe, jest ich dokładnie $65\,536$.
+Dla każdego z~nich sprawdzamy wszystkie $65\,536$ par $(b_{15}, b_{16})$
+i~weryfikujemy, że wyniki są parami różne (każdy wynik jest jedną z~$65\,536$
+możliwych wartości CRC, więc para różnych wejść dająca ten sam wynik oznaczałaby kolizję).
+Łączna liczba obliczeń: $65\,536^2 \approx 4{,}3 \times 10^9$.
+Każde obliczenie to dwa kroki LFSR z~tablicą lookup (jedno odczytanie z~pamięci
+i~jeden XOR na krok), co umożliwia wykonanie całości w~czasie poniżej 4~sekund.
+Jest to \textbf{skończone, wyczerpujące sprawdzenie} wykonane programem
+\texttt{verify\_bijection.cpp} (kod źródłowy w~pliku \texttt{verify\_bijection.cpp},
+wymagania i~instrukcja budowania w~pliku \texttt{README.md},
+kompilacja na macOS: \texttt{just build}).
+
+\medskip
+\noindent Wynik działania programu \texttt{verify\_bijection}:
+
+\begin{lstlisting}[language={}, numbers=none, basicstyle=\ttfamily\small]
+Sprawdzono stanow: 65536
+Stanow z kolizja:  0
+Bijekcja dla wszystkich stanow: TAK
+\end{lstlisting}
+
+Dla każdego prefiksu istnieje zatem dokładnie jeden sufiks.
+Prefiksów jest $2^{112}$, co kończy dowód:
+\[
+  \boxed{\text{Liczba możliwych kodów} = 2^{112}}
+\]
+
+% ===============================================================================
+\section*{Zadanie 6c: Informacje do jednoznacznego wyznaczenia kodu (2~pkt)}
+% ===============================================================================
+
+\subsection*{Treść zadania}
+
+Proszę o~komentarz, jakie informacje należałoby zdobyć, aby kod został
+wyznaczony w~sposób jednoznaczny.
+
+% -----------------------------------------------------------------------------
+\subsection*{Odpowiedź}
+
+Dysponujemy jedynie 16-bitowym CRC kodu. Kod ma 128 bitów, więc brakuje
+$128 - 16 = 112$ bitów informacji do jednoznacznego wyznaczenia.
+Aby zawęzić zbiór rozwiązań do jednego elementu, haker musiałby zdobyć
+dodatkowe informacje eliminujące $2^{112} - 1$ fałszywych kandydatów.
+
+\begin{enumerate}[label=\arabic*.]
+
+  \item \textbf{Przechwycenie nieuszkodzonej ramki z~kodem.}
+        Gdyby skaner zarejestrował ramkę bez zniekształceń, kod byłby wprost
+        dostępny. Jest to najprostszy scenariusz: brakujące 128 bitów zostaje
+        dostarczone bezpośrednio.
+
+  \item \textbf{Przechwycenie dodatkowych bitów kodu z~innego źródła.}
+        Dysponując co najmniej 112 dowolnymi bitami kodu (z~innej
+        przechwytniętej ramki, przez dostęp fizyczny do urządzenia lub
+        przez atak kanałem bocznym), można wyznaczyć pozostałe 16 bitów
+        z~warunku CRC.
+
+  \item \textbf{Wiedza o~strukturze lub formacie kodu.}
+        Jeżeli kod nie jest losowy, lecz ma znany format (stały nagłówek,
+        numer seryjny, ograniczony zakres wartości, generowany przez PRNG
+        o~przestrzeni stanu $< 2^{112}$), każde takie ograniczenie zmniejsza
+        liczbę kandydatów. Wystarczające ograniczenie prowadzi do
+        jednoznaczności.
+
+\end{enumerate}
+
+\medskip
+\noindent\textbf{Wniosek.}
+Samo CRC-16 dostarcza tylko 16 bitów informacji o~128-bitowym kodzie.
+Brakujące 112 bitów haker musi pozyskać z~innego źródła: bezpośrednio
+(kolejna ramka, dostęp do urządzenia) lub pośrednio (wiedza o~strukturze kodu).
+
+
+\end{document}

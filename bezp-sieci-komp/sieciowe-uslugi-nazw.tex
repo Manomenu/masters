@@ -1,0 +1,236 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[polish]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{parskip}
+\geometry{margin=2cm}
+
+\title{ZTBSK (2026L), 4. Sieciowe usługi nazw}
+\author{Piotr Gugnowski, wydział EiTI, nr indeksu 320690}
+\date{25 Maj 2026}
+
+\begin{document}
+\maketitle
+
+\section*{Pytania i odpowiedzi}
+
+% -----------------------------------------------------------------------
+\subsection*{1. Do czego służą sieciowe usługi nazw?}
+
+Sieciowe usługi nazw służą do translacji symbolicznych nazw (zrozumiałych dla
+człowieka) na adresy sieciowe (zrozumiałe dla urządzeń sieciowych) i odwrotnie.
+Każdy program korzystający z łączności sieciowej, który potrafi posługiwać się
+nazwami, musi być klientem takiej usługi; w praktyce jest on konsolidowany
+z dynamiczną biblioteką zwaną resolverem. Dzięki temu użytkownicy mogą odwoływać
+się do zasobów sieciowych przy użyciu czytelnych nazw (np.\ \texttt{www.example.com})
+zamiast numerycznych adresów IP.
+
+Poza tłumaczeniem nazw na adresy, usługi te mogą przechowywać szerszą gamę
+informacji katalogowych (np.\ dane o użytkownikach, zasobach organizacji,
+uprawnieniach), co stanowi podstawę dla usług katalogowych takich jak LDAP.
+
+% -----------------------------------------------------------------------
+\subsection*{2. Jakie usługi zaliczają się do sieciowych usług nazw?}
+
+Do sieciowych usług nazw zalicza się przede wszystkim:
+
+\begin{description}
+  \item[DNS (\emph{Domain Name System})]
+        Rozproszona, hierarchiczna baza danych obejmująca swoim zasięgiem całą
+        sieć Internet. Służy do tłumaczenia w pełni kwalifikowanych nazw domenowych
+        (FQDN) na adresy IP i odwrotnie, a także do przechowywania innych informacji
+        o zasobach sieciowych (rekordy MX, NS, TXT i inne).
+  \item[LDAP (\emph{Lightweight Directory Access Protocol})]
+        Nowoczesna usługa katalogowa o zasięgu lokalnym (instytucjonalnym).
+        W przeciwieństwie do DNS, nie istnieje jedna ogólnoświatowa struktura łącząca
+        wszystkie serwery LDAP; każda instytucja tworzy własne lokalne serwery.
+        Najważniejszym zastosowaniem LDAP jest autoryzacja użytkowników,
+        przechowywanie danych kontaktowych i zarządzanie kontami w obrębie organizacji.
+\end{description}
+
+% -----------------------------------------------------------------------
+\subsection*{3. Co to jest DNS?}
+
+DNS (\emph{Domain Name System}) jest to \textbf{rozproszona, hierarchiczna baza
+danych}. Wszelkie informacje przechowywane są w postaci \textbf{rekordów}
+składających się z pięciu elementów:
+\begin{itemize}
+  \item \textbf{nazwa:} identyfikator pozwalający na odnalezienie rekordu w bazie,
+  \item \textbf{czas życia} (TTL, \emph{Time To Live}): wyrażony w sekundach
+        okres, przez który dozwolone jest przechowywanie rekordu w lokalnych buforach,
+  \item \textbf{klasa rekordu:} identyfikator tworzący odrębną przestrzeń nazw;
+        jedyną powszechnie stosowaną klasą jest \texttt{IN} (Internet),
+  \item \textbf{typ rekordu:} identyfikator mówiący o rodzaju wartości (np.\
+        \texttt{A} dla adresu IPv4, \texttt{AAAA} dla IPv6, \texttt{CNAME} dla
+        nazwy kanonicznej, \texttt{MX} dla serwera pocztowego),
+  \item \textbf{wartość:} istotna informacja o obiekcie.
+\end{itemize}
+
+Rekordy pogrupowane są w tzw.\ \textbf{strefy} (\emph{domains}), tworzące strukturę
+drzewiastą. Istnieje strefa główna (\emph{root domain}), w której zarejestrowane są
+nazwy stref najwyższego poziomu (TLD, \emph{Top Level Domains}), a w każdej strefie
+można rejestrować kolejne strefy niższego poziomu.
+
+System jest \textbf{rozproszony}, ponieważ za przechowywanie informacji o rekordach
+każdej strefy odpowiedzialna jest inna grupa serwerów.
+
+% -----------------------------------------------------------------------
+\subsection*{4. Jakie są typy serwerów systemu DNS?}
+
+Ze względu na pełnioną funkcję serwery DNS dzielą się na dwa główne typy:
+
+\begin{description}
+  \item[Serwery rekursywne (buforujące)]
+        Służą do rozwiązywania zapytań na potrzeby lokalnych klientów. Gdy klient
+        chce poznać adres IP dla danej nazwy, wysyła zapytanie do lokalnego serwera
+        rekursywnego, który przejmuje cały ciężar poszukiwania odpowiedzi. Przy braku
+        informacji w pamięci podręcznej (cache) serwer sam odpytuje kolejne serwery
+        w hierarchii DNS (poczynając od serwerów strefy głównej), aż do uzyskania
+        odpowiedzi autorytatywnej. Wyniki są buforowane, by uniknąć powtarzania
+        zapytań.
+  \item[Serwery autorytatywne]
+        Udzielają odpowiedzi autorytatywnych dotyczących stref, za które są
+        odpowiedzialne. Dzielą się dalej na:
+        \begin{itemize}
+          \item \textbf{serwer główny} (\emph{master/primary}), przechowujący
+                oryginał danych danej strefy,
+          \item \textbf{serwery pomocnicze} (\emph{slave/secondary}), przechowujące
+                kopię danych strefy, automatycznie aktualizowaną z serwera głównego.
+        \end{itemize}
+\end{description}
+
+Technicznie jeden serwer DNS może pełnić jednocześnie kilka funkcji: być serwerem
+autorytatywnym dla jednej lub kilku stref i jednocześnie obsługiwać jako serwer
+rekursywny grupę lokalnych maszyn. Ze względów bezpieczeństwa (ataki DoS) zaleca
+się jednak rozdzielanie tych funkcji.
+
+% -----------------------------------------------------------------------
+\subsection*{5. Które serwery, i kiedy, wysyłają odpowiedzi autorytatywne?}
+
+Do udzielania odpowiedzi autorytatywnych uprawnione są \textbf{wyłącznie serwery
+odpowiedzialne za strefę}, w której zarejestrowana jest dana nazwa, tj.\ serwery
+autorytatywne (główny i pomocnicze) dla tej konkretnej strefy.
+
+Odpowiedź autorytatywna jest oznaczona specjalną flagą w pakiecie DNS i wysyłana
+jest zawsze, niezależnie od tego, czy jest pozytywna (rekord istnieje) czy
+negatywna (rekord nie istnieje). Uzyskanie odpowiedzi autorytatywnej kończy
+rozwiązywanie nazwy i powoduje odesłanie odpowiedzi do klienta.
+
+Serwery rekursywne nie wysyłają odpowiedzi autorytatywnych; mogą jedynie
+przekazywać informacje ze swojej pamięci podręcznej (które zostały wcześniej
+uzyskane od serwera autorytatywnego) lub inicjować dalsze zapytania w imieniu
+klienta.
+
+% -----------------------------------------------------------------------
+\subsection*{6. Co oznacza skrót FQDN?}
+
+FQDN to skrót od angielskiego \emph{Fully Qualified Domain Name} (pol.\
+\textbf{w pełni kwalifikowana nazwa domenowa}). Aby dotrzeć do informacji zawartej
+w konkretnym rekordzie DNS, konieczne jest podanie listy nazw stref począwszy od
+strefy najwyższego poziomu aż do nazwy rekordu. Taki pełny identyfikator, zawierający
+kompletną ścieżkę przez hierarchię DNS, nazywany jest właśnie FQDN.
+
+Przykładowo \texttt{www.example.com.} jest FQDN, gdzie kropka na końcu oznacza
+strefę główną (\emph{root domain}). W codziennym użyciu kropka na końcu jest
+pomijana, lecz w konfiguracji serwerów DNS ma ona istotne znaczenie, gdyż odróżnia
+FQDN od nazwy względnej.
+
+% -----------------------------------------------------------------------
+\subsection*{7. Które z serwerów DNS muszą być dostępne dla wszystkich komputerów
+w sieci?}
+
+Dla wszystkich komputerów w sieci \textbf{lokalnej} musi być dostępny
+\textbf{lokalny serwer rekursywny (buforujący)}. To on przyjmuje zapytania od
+klientów i realizuje ich rozwiązanie. Adres tego serwera jest konfigurowany
+w ustawieniach sieciowych każdego komputera (ręcznie lub przez DHCP).
+
+Serwery autorytatywne dla stref publicznych (w szczególności \textbf{serwery
+strefy głównej} i serwery TLD) muszą być dostępne dla serwerów rekursywnych
+z całego Internetu, ponieważ każde rozwiązywanie nazwy ostatecznie opiera się
+na hierarchii zapoczątkowanej przez te serwery.
+
+Serwery autorytatywne dla stref prywatnych (lokalne strefy organizacji) wystarczy
+udostępnić w obrębie sieci lokalnej.
+
+% -----------------------------------------------------------------------
+\subsection*{8. W jaki sposób serwery pomocnicze (\emph{slave}) dowiadują się,
+że uległa zmianie zawartość strefy na serwerze głównym (\emph{master})?}
+
+Stosowane są dwie komplementarne metody:
+
+\begin{description}
+  \item[Cykliczne odpytywanie serwera głównego (\emph{polling})]
+        Serwery pomocnicze w regularnych odstępach czasu pytają serwer główny,
+        czy dane strefy uległy zmianie (porównując numer seryjny w rekordzie SOA).
+        Jeśli numer seryjny wzrósł, pobierają aktualizację (tzw.\ transfer strefy).
+        Metoda ta zapewnia niezawodność, gdyż aktualizacja nastąpi zawsze, niezależnie
+        od stanu połączenia w chwili zmiany.
+  \item[Powiadomienia od serwera głównego (\emph{NOTIFY})]
+        Serwer główny aktywnie informuje serwery pomocnicze o tym, że dane uległy
+        zmianie. Zapewnia to szybką propagację zmian bez oczekiwania na kolejny
+        cykl odpytywania.
+\end{description}
+
+W praktyce często łączy się obie metody, aby zapewnić jednocześnie niezawodność
+(odpytywanie) i szybkość propagacji zmian (powiadomienia).
+
+% -----------------------------------------------------------------------
+\subsection*{9. Co to jest DNS dynamiczny? Jakie są z nim związane problemy?}
+
+DNS był projektowany przy założeniu, że adresy IP są związane na stałe z komputerami,
+a ewentualne zmiany (dodanie, usunięcie, zmiana adresu) są stosunkowo rzadkie, stąd
+typowe czasy życia rekordów (TTL) są rzędu tygodnia. \textbf{Dynamiczny DNS} to próba
+wykorzystania systemu DNS do obsługi dynamicznie zmieniających się przydziałów
+adresów IP (np.\ w środowiskach korzystających z DHCP).
+
+\textbf{Problemy związane z dynamicznym DNS:}
+
+\begin{itemize}
+  \item \textbf{Wyścigi i hazardy przy niskich wartościach TTL.}
+        Pozornym rozwiązaniem jest drastyczne skrócenie TTL rekordów. Jednak gdy
+        czasy życia stają się bliskie czasom potrzebnym na uzyskanie odpowiedzi od
+        serwera, możliwe stają się wyścigi prowadzące do uzyskania nieaktualnej
+        informacji.
+  \item \textbf{Niemożność buforowania, wzrost obciążenia serwerów.}
+        Krótkie TTL uniemożliwiają efektywne buforowanie zapytań. Powoduje to
+        generowanie znacznie większej liczby zapytań do serwerów, co obciąża je
+        i zmniejsza ich wydajność.
+  \item \textbf{Problem autoryzacji aktualizacji.}
+        Przydziały dynamiczne są dokonywane poza serwerem DNS (np.\ przez serwer
+        DHCP lub same stacje robocze), co oznacza, że serwer DNS musi akceptować
+        żądania zmiany zawartości strefy przychodzące z zewnątrz. Szczególnie
+        trudne jest zapewnienie bezpieczeństwa, gdy żądania przysyłają poszczególne
+        stacje robocze; wielokrotnie wykrywano błędy umożliwiające hakerom zdalne
+        manipulowanie zawartością serwera.
+\end{itemize}
+
+% -----------------------------------------------------------------------
+\subsection*{10. Co to jest DNS podzielony? Jakie jest jego przeznaczenie?}
+
+\textbf{DNS podzielony} (ang.\ \emph{split DNS}) to konfiguracja, w której serwery
+DNS udzielają \textbf{różnych odpowiedzi w zależności od tego, kto zadaje pytanie}.
+W tym celu definiuje się tzw.\ \textbf{widoki} (ang.\ \emph{views}) i określa,
+którzy klienci mają otrzymywać dane z którego widoku:
+
+\begin{itemize}
+  \item zapytania z sieci lokalnej: ujawniane są wszystkie nazwy i adresy
+        prywatne (pełny widok wewnętrzny),
+  \item zapytania z zewnątrz: ujawniane są wyłącznie nazwy i adresy publiczne
+        (widok zewnętrzny).
+\end{itemize}
+
+\textbf{Przeznaczenie DNS podzielonego} wynika z powszechnego stosowania prywatnych
+adresów IP w sieciach lokalnych. Z jednej strony wygodnie jest posługiwać się
+nazwami wewnątrz sieci lokalnej, z drugiej strony prywatne adresy nie są dostępne
+spoza niej. Informacja o nich byłaby bezużyteczna dla zewnętrznych użytkowników,
+a jednocześnie potencjalnie przydatna dla intruzów. DNS podzielony rozwiązuje
+ten problem, odseparowując wewnętrzną i zewnętrzną przestrzeń nazw przy użyciu
+tych samych serwerów.
+
+\end{document}

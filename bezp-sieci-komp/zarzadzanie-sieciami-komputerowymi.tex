@@ -1,0 +1,416 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[polish]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{parskip}
+\geometry{margin=2cm}
+
+\title{ZTBSK (2026L), 3. Zarządzanie sieciami komputerowymi}
+\author{Piotr Gugnowski, wydział EiTI, nr indeksu 320690}
+\date{25 Maj 2026}
+
+\begin{document}
+\maketitle
+
+\section*{Pytania i odpowiedzi}
+
+% -----------------------------------------------------------------------
+\subsection*{1. Opisz podstawowe obszary działania systemów zarządzania. Jakie
+obszary zarządzania są istotne z punktu widzenia administratora: małej sieci,
+sieci kampusowej, operatora?}
+
+Standard ISO/IEC~7498-4 definiuje pięć podstawowych obszarów działania systemów
+zarządzania, tworzących razem model FCAPS:
+
+\begin{description}
+  \item[Zarządzanie obsługą błędów (\emph{Fault Management})]
+        Obejmuje wykrywanie, izolowanie i usuwanie niesprawności urządzeń
+        i łączy sieciowych w trakcie ich działania. Celem jest jak najszybsze
+        przywrócenie sprawności sieci lub odpowiednich jej fragmentów.
+  \item[Zarządzanie konfiguracją (\emph{Configuration Management})]
+        Pozwala na sprawdzenie aktualnej konfiguracji każdego elementu sieci
+        (routerów, przełączników, interfejsów) oraz dokonywanie w niej odpowiednich
+        zmian -- zarówno jednorazowych, jak i masowych.
+  \item[Rozliczenia (\emph{Accounting Management})]
+        Pojęcie rzadko pojawiające się w kontekście sieci TCP/IP, lecz istotne
+        dla operatorów. Oznacza monitorowanie kosztów połączeń i wykorzystania
+        zasobów sieciowych przez poszczególnych użytkowników lub grupy.
+  \item[Zarządzanie wydajnością (\emph{Performance Management})]
+        Polega przede wszystkim na monitorowaniu ruchu w sieci w celu określenia
+        ewentualnych "wąskich gardeł", pomiarze opóźnień i obciążenia urządzeń.
+  \item[Zarządzanie bezpieczeństwem (\emph{Security Management})]
+        Obejmuje kontrolę i autoryzację dostępu do zasobów sieciowych, szyfrowanie
+        danych oraz alarmowanie o wszelkich przypadkach naruszenia zasad
+        bezpieczeństwa.
+\end{description}
+
+\textbf{Istotność obszarów z perspektywy różnych administratorów:}
+
+\textbf{Administrator małej sieci.}
+Najistotniejsze są zarządzanie konfiguracją (ręczna konfiguracja niewielkiej
+liczby urządzeń przez CLI lub interfejs WWW) oraz zarządzanie obsługą błędów
+(proste monitorowanie dostępności narzędziami takimi jak MRTG czy \texttt{ping}).
+Rozliczenia i zaawansowane zarządzanie wydajnością mają tu mniejsze znaczenie.
+
+\textbf{Administrator sieci kampusowej.}
+W sieci obejmującej setki lub tysiące urządzeń kluczowe są cztery obszary
+FCAPS -- rozliczenia mają tu marginalne znaczenie, gdyż sieć kampusowa
+zazwyczaj nie rozlicza ruchu per użytkownik. Szczególny nacisk kładzie się na:
+zarządzanie konfiguracją (zautomatyzowana konfiguracja wielu urządzeń
+jednocześnie), zarządzanie obsługą błędów (szybka lokalizacja awarii
+w rozległej infrastrukturze), zarządzanie wydajnością (analiza ruchu
+w segmentach sieci z użyciem RMON, wykrywanie wąskich gardeł, planowanie
+rozbudowy) oraz zarządzanie bezpieczeństwem (ochrona zasobów dostępnych dla
+dużej liczby użytkowników).
+
+\textbf{Operator sieci (ISP/telekomunikacyjny).}
+Wszystkie obszary FCAPS są krytyczne. Dodatkowo kluczowe stają się rozliczenia
+(mierzenie ruchu per klient, per usługa, weryfikacja SLA) oraz wdrożenia
+złożonych platform zarządzania klasy enterprise. W dużych sieciach
+telekomunikacyjnych stosuje się standard TMN (\emph{Telecommunications
+Management Network}, ITU-T), który oferuje znacznie większe możliwości
+sterowania i zarządzania niż SNMP.
+
+% -----------------------------------------------------------------------
+\subsection*{2. W jaki sposób może odbywać się konfiguracja urządzeń sieciowych?
+W jakich sytuacjach które metody wydają się być najwłaściwsze?}
+
+\textbf{Dostępne metody:}
+
+\begin{itemize}
+  \item \textbf{Dostęp terminalowy (port szeregowy RS-232 / USB).}
+        Pierwotna i nadal powszechna metoda. Urządzenie podłączane jest
+        bezpośrednio i nie wymaga działającej sieci IP.
+  \item \textbf{Telnet i SSH.}
+        Pozwalają na połączenie przez sieć. Telnet przesyła dane jawnym tekstem,
+        natomiast SSH szyfruje całą komunikację i jest zdecydowanie preferowany.
+  \item \textbf{Interfejs WWW (HTTP/HTTPS).}
+        Bardzo upraszcza konfigurację, szczególnie urządzeń przeznaczonych dla
+        małych sieci i użytku domowego. Nie wymaga znajomości składni poleceń.
+        Dzięki rosnącej mocy obliczeniowej modułów zarządzania możliwe jest
+        tworzenie nawet niewielkich systemów zarządzania bezpośrednio w urządzeniu.
+  \item \textbf{Linia poleceń -- sieciowe systemy operacyjne.}
+        Najważniejsi dostawcy opracowali własne, rozbudowane zestawy komend
+        (np.\ Cisco IOS, Juniper JUNOS). Dają one najpełniejszą możliwość
+        konfiguracji -- nie wszystkie niuanse konfiguracyjne są możliwe do
+        zrealizowania z poziomu interfejsów graficznych.
+  \item \textbf{Protokoły zarządzania (SNMP SetRequest, NETCONF).}
+        Umożliwiają zdalną, automatyczną konfigurację urządzeń w ramach systemów
+        zarządzania, szczególnie istotne przy masowej konfiguracji.
+\end{itemize}
+
+\textbf{Dobór metody do sytuacji:}
+
+\begin{itemize}
+  \item \textbf{Pierwsze uruchomienie lub awaria sieci} -- port szeregowy jest
+        jedyną metodą, gdy sieć IP jeszcze nie działa lub jest niedostępna.
+  \item \textbf{Urządzenia domowe i małe biuro} -- interfejs WWW jest
+        optymalny: intuicyjny, nie wymaga specjalistycznej wiedzy.
+  \item \textbf{Profesjonalna konfiguracja złożonych urządzeń} -- CLI daje
+        pełną kontrolę nad wszystkimi parametrami i jest niezbędna, gdy interfejs
+        graficzny nie eksponuje określonych opcji konfiguracyjnych.
+  \item \textbf{Zdalne zarządzanie przez sieć} -- SSH jest metodą zalecaną
+        ze względów bezpieczeństwa (szyfrowanie, uwierzytelnianie kluczem).
+        Telnet jest dopuszczalny wyłącznie w izolowanych sieciach zarządzania.
+  \item \textbf{Masowa konfiguracja wielu urządzeń} -- protokoły zarządzania
+        lub narzędzia do automatyzacji pozwalają skonfigurować setki urządzeń
+        jednocześnie, co byłoby niewykonalne metodami manualnymi.
+\end{itemize}
+
+% -----------------------------------------------------------------------
+\subsection*{3. Omów architekturę systemów zarządzania i rolę poszczególnych
+ich elementów.}
+
+Typowa budowa systemu zarządzania jest stosunkowo prosta i składa się
+z następujących elementów:
+
+\begin{description}
+  \item[Agenci (\emph{agents})]
+        Elementy rozmieszczone w zarządzanych urządzeniach, odpowiedzialne za
+        monitorowanie i zarządzanie danym obiektem (komputerem, urządzeniem
+        sieciowym itp.). Mogą to być fragmenty oprogramowania urządzenia, dedykowane
+        moduły sprzętowe lub zupełnie osobne urządzenia (np.\ sondy RMON).
+        Przechowują informacje o stanie urządzenia w bazie MIB i odpowiadają na
+        zapytania stacji zarządzającej.
+  \item[Stacja zarządzająca (\emph{NMS -- Network Management Station})]
+        Centralny element systemu. Stale odpytuje agentów o stan urządzeń,
+        gromadzi i prezentuje zebrane informacje, generuje alarmy. Komunikacja
+        jest zazwyczaj inicjowana przez stację. Agenci inicjują komunikację
+        ze stacją w razie sytuacji krytycznych (awaria, przekroczenie
+        wcześniej określonych limitów ruchu itp.).
+  \item[Urządzenia pośredniczące (\emph{proxy})]
+        Stosowane gdy agent i stacja zarządzająca korzystają z różnych protokołów
+        komunikacji. Pełnią rolę "tłumacza" pomiędzy nimi, umożliwiając
+        zarządzanie urządzeń nieobsługujących natywnie protokołu zarządzania
+        stosowanego przez stację.
+  \item[Super-agenci (\emph{sub-managers})]
+        Stosowane w bardzo rozbudowanych sieciach lub gdy stała bezpośrednia
+        łączność pomiędzy agentem a stacją zarządzającą jest zbyt kosztowna
+        (np.\ w sieciach rozległych). Zbierają dane od agentów z wyróżnionej
+        części sieci, dokonują wstępnej obróbki i agregacji informacji,
+        a następnie wysyłają przetworzone dane do centralnej stacji zarządzającej.
+\end{description}
+
+Komunikacja między agentami a stacją zarządzającą może odbywać się przez tę
+samą sieć, którą zarządzamy (\emph{in-band}), lub przez dedykowaną, odrębną
+sieć zarządzania (\emph{out-of-band}). W sieciach telekomunikacyjnych często
+stosuje się to drugie rozwiązanie -- ruch zarządzania przesyłany jest wprawdzie
+przez tę samą sieć fizyczną, ale wyodrębnionym kanałem, aby nie wpływał na
+transmisję danych.
+
+% -----------------------------------------------------------------------
+\subsection*{4. Jakie polecenia protokołu SNMP mogą być wykorzystane do
+monitorowania stanu sieci?}
+
+Protokół SNMP (\emph{Simple Network Management Protocol}) w swoim podstawowym
+modelu posługuje się pięcioma typami komunikatów PDU
+(\emph{Protocol Data Unit}):
+
+\begin{description}
+  \item[\texttt{GetRequest}]
+        Wysyłany przez stację zarządzającą do agenta. Żąda wartości konkretnego,
+        pojedynczego elementu bazy danych agenta (jednego obiektu MIB).
+  \item[\texttt{GetNextRequest}]
+        Wysyłany przez stację zarządzającą. Żąda wartości \emph{następnego}
+        elementu bazy danych względem wskazanego. Umożliwia sekwencyjne
+        przeglądanie hierarchicznej bazy MIB bez znajomości pełnych identyfikatorów
+        obiektów.
+  \item[\texttt{SetRequest}]
+        Wysyłany przez stację zarządzającą do agenta. Nakazuje wstawienie
+        określonej wartości do wskazanego elementu bazy MIB. Zmiana wartości
+        w bazie powinna pociągać za sobą odpowiednią zmianę stanu urządzenia.
+  \item[\texttt{GetResponse}]
+        Wysyłany przez agenta w odpowiedzi na każde z powyższych poleceń.
+        Zawiera żądane wartości lub informację o błędzie.
+  \item[\texttt{Trap}]
+        Jedyny komunikat inicjowany przez \emph{agenta}. Agent wysyła go
+        do stacji zarządzania w przypadku nagłego zdarzenia (awaria, przekroczenie
+        progu). Zawiera informację o typie zdarzenia, czasie jego powstania
+        i ewentualnie dalsze dane o stanie urządzenia.
+\end{description}
+
+W wersji SNMPv2 dodano dwa nowe typy: \texttt{GetBulkRequest} (przesłanie
+większej liczby danych jednym zapytaniem) oraz \texttt{InformRequest} (wymiana
+informacji zarządczych między stacjami zarządzającymi, z potwierdzeniem
+odbioru). SNMPv3 nie wprowadził nowych PDU, lecz dodał warstwę
+bezpieczeństwa USM (\emph{User Security Model}) -- szyfrowanie (DES),
+uwierzytelnianie (MD5, SHA) i zdefiniowane prawa dostępu do danych.
+
+% -----------------------------------------------------------------------
+\subsection*{5. Jakiego rodzaju informacje i w jaki sposób są przechowywane
+w bazie MIB?}
+
+MIB (\emph{Management Information Base}) to hierarchiczna baza danych
+przechowywana przez agenta SNMP. Jej struktura ma postać drzewa:
+
+\begin{itemize}
+  \item \textbf{Drzewo obiektów.} Węzły drzewa definiują relacje logiczne
+        między zarządzanymi obiektami. Liście drzewa definiują same obiekty
+        (właściwości urządzenia, sposób jego działania, dane statystyczne itp.).
+  \item \textbf{Rodzaje przechowywanych danych.} Baza MIB przechowuje wyłącznie
+        proste obiekty: dane \textbf{skalarne} (pojedyncze wartości) lub
+        \textbf{dwuwymiarowe tablice} danych skalarnych. Protokół SNMP obsługuje
+        wyłącznie przesyłanie danych skalarnych, więc tablice muszą być
+        przesyłane element po elemencie.
+  \item \textbf{Identyfikatory obiektów (OID).} Każdy element bazy ma unikalny
+        identyfikator będący ciągiem liczb całkowitych oddzielonych kropkami,
+        gdzie każda liczba to numer obiektu na danym stopniu hierarchii. Przykładowo
+        tablica połączeń TCP dostępna jest pod adresem \texttt{1.3.6.1.2.1.6.13}.
+  \item \textbf{Spójność z urządzeniem.} Każda zmiana stanu zarządzanego
+        urządzenia powinna natychmiast znajdować odbicie w bazie MIB agenta
+        i odwrotnie -- zmiana wartości w bazie MIB powinna powodować odpowiednią
+        zmianę stanu urządzenia.
+  \item \textbf{Rozszerzenia prywatne.} W hierarchii MIB przewidziano wydzieloną
+        gałąź dla wytwórców urządzeń sieciowych -- mogą oni rozszerzać standardową
+        bazę MIB o informacje charakterystyczne dla swoich produktów (jest to
+        jeden z powodów, dla których nie ma praktycznie systemów zarządzania
+        pozwalających na zarządzanie sprzętem różnych producentów -- każdy z nich
+        inaczej definiuje parametry swoich urządzeń).
+\end{itemize}
+
+% -----------------------------------------------------------------------
+\subsection*{6. Jakie grupy informacji zawiera baza danych MIB-II?}
+
+W 1991 roku zaproponowano rozszerzenie definicji bazy danych MIB tworząc
+standard MIB-II (RFC~1213). Rozszerza on dane dotąd gromadzone przez bazę MIB
+o statystyki dotyczące m.in.\ interfejsów sieciowych, translacji adresów
+i protokołów IP, ICMP, UDP, TCP oraz SNMP. MIB-II zawiera następujące grupy
+obiektów:
+
+\begin{enumerate}
+  \item \textbf{system} -- informacje ogólne o urządzeniu (nazwa, opis,
+        czas działania, lokalizacja, dane kontaktowe).
+  \item \textbf{interfaces} -- dane o interfejsach sieciowych urządzenia
+        (liczba interfejsów, prędkości, stany, statystyki przesłanych pakietów
+        i błędów).
+  \item \textbf{at} (\emph{address translation}) -- tablice translacji adresów
+        sieciowych na fizyczne.
+  \item \textbf{ip} -- statystyki protokołu IP (liczba datagramów, tablice
+        routingu, błędy fragmentacji).
+  \item \textbf{icmp} -- statystyki protokołu ICMP (liczba komunikatów
+        poszczególnych typów).
+  \item \textbf{tcp} -- statystyki protokołu TCP (liczba połączeń, tablica
+        aktywnych połączeń, retransmisje).
+  \item \textbf{udp} -- statystyki protokołu UDP.
+  \item \textbf{egp} -- statystyki protokołu EGP (\emph{Exterior Gateway Protocol}).
+  \item \textbf{transmission} -- dane specyficzne dla medium transmisyjnego.
+  \item \textbf{snmp} -- statystyki samego protokołu SNMP (liczba wysłanych
+        i odebranych komunikatów poszczególnych typów).
+\end{enumerate}
+
+% -----------------------------------------------------------------------
+\subsection*{7. Jakie rodzaje informacji o sieci pozwala zbierać standard RMON2?}
+
+RMON (\emph{Remote Network Monitoring}) powstał jako rozszerzenie bazy MIB-II
+w celu zapewnienia analizy ruchu w całym segmencie sieci. Pierwotn RMON1
+(RFC~1757) dodał dziewięć grup dla sieci Ethernet analizujących ruch na
+\textbf{warstwie fizycznej} (statistics, history, alarm, host, hostTopN, matrix,
+filter, capture, event) oraz jedną dla sieci Token Ring.
+
+W 1996 roku rozszerzono specyfikację tworząc \textbf{RMON2} (RFC~2021), który
+pozwala na analizę ruchu w \textbf{wyższych warstwach modelu sieciowego}.
+Nowe grupy RMON2 to:
+
+\begin{description}
+  \item[\texttt{protocolDir} (\emph{protocol directory})]
+        Katalog wszystkich protokołów sieciowych, które mogą być przez sondę
+        interpretowane.
+  \item[\texttt{protocolDist} (\emph{protocol distribution})]
+        Statystyki ruchu w każdym z protokołów -- umożliwia analizę, jakie
+        protokoły dominują w ruchu sieciowym.
+  \item[\texttt{addressMap} (\emph{address map})]
+        Tablice adresów fizycznych (MAC) i sieciowych (IP) dla wszystkich maszyn
+        podłączonych do danego segmentu sieci (mapowanie warstwy 2 na warstwę 3).
+  \item[\texttt{nlHost} (\emph{network-layer host})]
+        Statystyka ruchu w warstwie sieciowej dla poszczególnych komputerów
+        (ruch wysyłany i odbierany per adres IP).
+  \item[\texttt{nlMatrix} (\emph{network-layer matrix})]
+        Tablica z danymi o ruchu pomiędzy każdymi dwoma komputerami, zebrana
+        na podstawie adresów sieciowych -- pozwala stwierdzić, które pary hostów
+        generują największy ruch.
+  \item[\texttt{alHost} (\emph{application-layer host})]
+        Statystyka ruchu dla poszczególnych komputerów zebrana na podstawie ich
+        adresów w warstwie aplikacji.
+  \item[\texttt{alMatrix} (\emph{application-layer matrix})]
+        Tablica z danymi o ruchu pomiędzy każdymi dwoma komputerami, zebrana
+        na podstawie adresów warstwy aplikacji.
+  \item[\texttt{usrHistory} (\emph{user history collection})]
+        Dane historyczne zbierane z innych tabel -- o tym, które wartości będą
+        przechowywane, decyduje użytkownik.
+  \item[\texttt{probeConfig} (\emph{probe configuration})]
+        Standardowe parametry konfiguracyjne sondy RMON.
+\end{description}
+
+% -----------------------------------------------------------------------
+\subsection*{8. Opisz funkcje znanej platformy zarządzania.}
+
+Ze względu na fakt, że każdy producent urządzeń sieciowych rozszerza standardową
+bazę MIB o własne elementy, budowa uniwersalnych platform zarządzania jest
+niezwykle trudna -- platform, które byłyby w stanie zarządzać sprzętem
+pochodzącym od różnych producentów, istnieje tylko kilka. Przykładem jest
+\textbf{HP OpenView}.
+
+\medskip
+\textbf{HP OpenView} to wielomodułowa platforma zarządzania siecią, której
+główne funkcje obejmują:
+
+\begin{itemize}
+  \item \textbf{Wykrywanie topologii sieci.} Platforma automatycznie
+        wykrywa urządzenia sieciowe i tworzy graficzną mapę topologii sieci.
+  \item \textbf{Monitorowanie dostępności.} Cykliczne sprawdzanie stanu
+        urządzeń i usług z generowaniem alarmów w przypadku awarii lub
+        przekroczenia progów wydajnościowych.
+  \item \textbf{Zarządzanie zdarzeniami i alarmami.} Zbieranie i korelacja
+        zdarzeń (w tym komunikatów SNMP Trap) z całej infrastruktury,
+        priorytetyzacja alarmów i powiadamianie odpowiednich osób.
+  \item \textbf{Monitorowanie wydajności.} Zbieranie danych o obciążeniu
+        łączy i urządzeń, generowanie wykresów i raportów wydajności,
+        analiza trendów.
+  \item \textbf{Zarządzanie konfiguracją.} Dostęp do parametrów konfiguracyjnych
+        zarządzanych urządzeń i możliwość ich zmiany.
+  \item \textbf{Otwarta architektura.} Możliwość integracji z modułami
+        dostarczanymi przez producentów urządzeń sieciowych (NNM SDK),
+        co pozwala rozszerzyć platformę o obsługę sprzętu specyficznego
+        dla danego wytwórcy.
+\end{itemize}
+
+% -----------------------------------------------------------------------
+\subsection*{9. Z jakich elementów należałoby zbudować system zarządzania
+dla niewielkiej sieci?}
+
+Nawet w małej sieci możliwe jest wykorzystanie możliwości jakie dają zarządzalne
+urządzenia sieciowe, przy niewielkim nakładzie kosztów i umiarkowanym nakładzie
+pracy:
+
+\begin{enumerate}
+  \item \textbf{Zarządzalne urządzenia sieciowe z obsługą SNMP.}
+        Routery, przełączniki i punkty dostępowe obsługujące SNMPv3 dla bezpieczeństwa stanowią fundament
+        systemu -- umożliwiają zbieranie informacji o stanie sieci.
+  \item \textbf{Stacja zarządzająca.}
+        Komputer (może być wirtualny) z oprogramowaniem do monitorowania.
+        W małej sieci wystarczy jedna stacja.
+  \item \textbf{Oprogramowanie monitorowania i wizualizacji.}
+        Narzędzia open-source, np.\ MRTG lub Cacti (monitorowanie obciążenia
+        interfejsów via SNMP, wykresy historyczne) oraz Nagios lub Zabbix
+        (monitorowanie dostępności usług i urządzeń, alarmowanie o awariach).
+  \item \textbf{Konfiguracja SNMP na urządzeniach.}
+        Na zarządzanych urządzeniach należy skonfigurować tzw.\ community
+        string -- hasło dostępu do agenta SNMP. Do monitorowania wystarczy
+        tryb tylko do odczytu (ang.\ \emph{read-only}, domyślnie \texttt{public}),
+        który pozwala stacji zarządzającej odczytywać dane, ale nie zmieniać
+        konfiguracji urządzenia. Należy też wskazać adres stacji zarządzającej
+        jako odbiorcę komunikatów Trap oraz -- w miarę możliwości -- zastosować
+        SNMPv3 z uwierzytelnianiem i szyfrowaniem zamiast prostego community string.
+  \item \textbf{Sieć zarządzania (VLAN zarządzania).}
+        W małej sieci komunikacja zarządzania odbywa się zazwyczaj tą samą
+        siecią co dane użytkowników. Dobrą praktyką jest wydzielenie osobnej
+        sieci VLAN dedykowanej ruchowi zarządzania.
+  \item \textbf{Dokumentacja.}
+        Mapa sieci, spis urządzeń z adresami IP i typami, procedury reagowania
+        na alarmy.
+\end{enumerate}
+
+Tak zbudowany system umożliwia wykrywanie awarii, monitorowanie obciążenia
+łączy i zarządzanie konfiguracją bez potrzeby ponoszenia kosztów licencyjnych
+rozbudowanych platform klasy enterprise.
+
+% -----------------------------------------------------------------------
+\subsection*{10. Dlaczego administrator sieci potrzebuje systemu zarządzania?}
+
+Potrzeba posiadania systemu zarządzania wynika z kilku fundamentalnych
+przesłanek:
+
+\begin{itemize}
+  \item \textbf{Złożoność nowoczesnych sieci.} Nawet stosunkowo mała sieć
+        firmowa składa się z dziesiątek urządzeń. Ręczne sprawdzanie stanu
+        każdego z nich jest nieefektywne lub wręcz niemożliwe. System
+        zarządzania automatyzuje monitorowanie i sygnalizuje problemy.
+  \item \textbf{Szybkie wykrywanie i lokalizowanie awarii.} Bez systemu
+        zarządzania administrator dowiaduje się o awarii zazwyczaj dopiero
+        ze zgłoszenia użytkownika. System wykrywa awarię natychmiast (przez
+        cykliczne odpytywanie agentów lub odbiór komunikatów Trap) i wskazuje
+        jej lokalizację, co drastycznie skraca czas przywrócenia sprawności
+        sieci.
+  \item \textbf{Zarządzanie konfiguracją.} System umożliwia zdalne i scentralizowane
+        zarządzanie konfiguracją urządzeń, co jest nieocenione przy wdrażaniu
+        zmian, aktualizacjach oprogramowania lub reagowaniu na incydenty
+        bezpieczeństwa.
+  \item \textbf{Monitorowanie wydajności i planowanie rozbudowy.} Zbierane
+        statystyki ruchu (przez SNMP i RMON) pozwalają śledzić trendy obciążenia
+        łączy, wykrywać wąskie gardła i planować rozbudowę infrastruktury
+        zanim pojawią się problemy z wydajnością.
+  \item \textbf{Bezpieczeństwo sieci.} System umożliwia monitorowanie prób
+        nieautoryzowanego dostępu, alarmowanie o naruszeniach zasad bezpieczeństwa
+        oraz szybkie reagowanie na incydenty.
+  \item \textbf{Rozliczalność i audyt.} Zebrane dane historyczne umożliwiają
+        analizę incydentów po fakcie, generowanie raportów dostępności dla
+        kierownictwa oraz weryfikację parametrów SLA.
+\end{itemize}
+
+\end{document}

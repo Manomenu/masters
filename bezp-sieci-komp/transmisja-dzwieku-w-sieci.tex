@@ -1,0 +1,331 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[polish]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{parskip}
+\geometry{margin=2cm}
+
+\title{ZTBSK (2026L), 5. Transmisja dźwięku w sieciach komputerowych}
+\author{Piotr Gugnowski, wydział EiTI, nr indeksu 320690}
+\date{25 Maj 2026}
+
+\begin{document}
+\maketitle
+
+\section*{Pytania i odpowiedzi}
+
+% -----------------------------------------------------------------------
+\subsection*{1. Jakie problemy związane są z transmisją dźwięku w sieciach
+komputerowych?}
+
+Transmisja dźwięku (VoIP) w sieciach opartych na protokole IP wiąże się
+z szeregiem trudności:
+
+\begin{itemize}
+  \item \textbf{Brak gwarancji jakości w protokole IP.}
+        IP jest protokołem datagramowym, niepewnym co do kolejności i dostarczenia
+        pakietów. Protokół TCP zapewnia co prawda pewność dostarczenia, lecz
+        kosztem opóźnień wynikających z potwierdzeń i ewentualnych retransmisji,
+        które są niedopuszczalne przy transmisji głosu w czasie rzeczywistym.
+  \item \textbf{Opóźnienia i ich kumulacja.}
+        Głos wymaga dostarczenia pakietów w ściśle określonych granicach
+        czasowych; opóźnienia wynikające z kodowania, kolejkowania i propagacji
+        nie mogą się sumować powyżej dopuszczalnego progu (szczegóły w pytaniu 9).
+  \item \textbf{Zmienność opóźnień (jitter).}
+        Pakiety mogą docierać do odbiorcy w nierównych odstępach czasu, co
+        zaburza odtwarzanie dźwięku. Konieczne jest stosowanie buforów dejitter.
+  \item \textbf{Nieefektywne wykorzystanie pola ToS.}
+        Pole \emph{Type of Service} nagłówka IPv4 definiuje klasy ruchu służące
+        priorytetyzacji, lecz w praktyce większość urządzeń ich nie implementuje
+        (szczegóły w pytaniu 7).
+  \item \textbf{Niedobór adresów IP (IPv4).}
+        Dołączenie dużej liczby telefonów IP do sieci może wymagać przenumerowania
+        podsieci lub wymuszać rozbudowę infrastruktury routerów.
+  \item \textbf{Współdzielenie łączy WAN z ruchem danych.}
+        Łącza rozległe (szczególnie w sieciach Frame Relay i ATM) są
+        współdzielone z ruchem danych, a ich przepustowość bywa ograniczona,
+        co utrudnia zapewnienie wymaganej jakości transmisji głosu.
+  \item \textbf{Blokowanie przez duże pakiety.}
+        Duży pakiet danych wchodzący do kolejki może opóźnić pakiety głosowe
+        na czas swojego wysyłania, co wymaga stosowania mechanizmów fragmentacji
+        i kolejkowania.
+\end{itemize}
+
+% -----------------------------------------------------------------------
+\subsection*{2. Jakie zagadnienia muszą zostać wzięte pod uwagę przy projektowaniu
+multimedialnych sieci LAN, a jakie przy sieciach WAN?}
+
+\textbf{Sieci LAN:}
+
+W sieci lokalnej głównym zagadnieniem jest \textbf{priorytetyzacja ruchu
+głosowego względem ruchu danych} przesyłanych tym samym łączem. Kwestie,
+które należy wziąć pod uwagę:
+
+\begin{itemize}
+  \item \textbf{Kolejkowanie pakietów w przełącznikach.} Strumień głosowy
+        (np.\ 80~kb/s per połączenie) współdzieli łącze z ruchem danych;
+        przełącznik musi gromadzić pakiety danych tak, by nie opóźniać pakietów
+        głosowych.
+  \item \textbf{Klasyfikacja ruchu} (szczegóły w pytaniu 7). Standard
+        IEEE~802.1p definiuje klasy ruchu w warstwie 2 (łącza danych);
+        priorytety mogą być przenoszone do pola ToS nagłówka IP dla urządzeń
+        warstwy 3 (sieciowej). Do celów telefonii wystarczają zazwyczaj dwie
+        klasy: wysoka (głos) i niska (dane).
+  \item \textbf{Adresowanie i segmentacja.} VLAN pozwala tworzyć logicznie
+        odrębne sieci telefoniczne bez zmiany infrastruktury fizycznej.
+        DHCP umożliwia automatyczną konfigurację telefonów IP, niezależnie
+        od miejsca ich podłączenia.
+\end{itemize}
+
+\textbf{Sieci WAN:}
+
+W sieciach rozległych dochodzą zagadnienia związane z \textbf{ograniczonym
+i współdzielonym pasmem} łączy (Frame Relay, ATM) oraz większą podatnością
+na opóźnienia. Kwestie do rozważenia:
+
+\begin{itemize}
+  \item \textbf{Algorytmy kolejkowania pakietów} (opisane szczegółowo
+        w pytaniach 3 i 4): jawny podział pasma między klasy ruchu lub
+        mechanizmy zapobiegania przeciążeniom.
+  \item \textbf{Metody podniesienia wydajności łączy} (opisane w pytaniu 5):
+        kompresja nagłówków, kompresja danych (kodeki), fragmentacja
+        i przeplatanie pakietów (LFI).
+  \item \textbf{Rezerwacja zasobów (RSVP)} (opisane w pytaniu 10): rezerwacja
+        pasma na całej trasie pakietu gwarantująca end-to-end QoS.
+  \item \textbf{Zarządzanie ruchem.} Listy routingu pozwalają kierować ruch
+        głosowy dedykowanymi ścieżkami i wymuszać właściwe wartości pola ToS
+        niezależnie od ustawień urządzeń końcowych.
+\end{itemize}
+
+% -----------------------------------------------------------------------
+\subsection*{3. Do czego służy kolejkowanie pakietów?}
+
+Kolejkowanie pakietów w urządzeniach sieciowych służy do \textbf{zarządzania
+ruchem na wyjściu interfejsu} w sytuacji, gdy natężenie ruchu przychodzącego
+przekracza chwilową przepustowość łącza. Podstawowe cele kolejkowania to:
+
+\begin{itemize}
+  \item Gromadzenie napływających pakietów danych tak, aby nie wprowadzać
+        opóźnień w połączeniach głosowych (priorytetyzacja ruchu).
+  \item Zapewnienie, że pakiety o wyższym priorytecie (np.\ głos) nie są
+        wstrzymywane przez pakiety o niższym priorytecie (np.\ pobieranie plików).
+  \item Zagwarantowanie każdej klasie ruchu określonej procentowo części
+        dostępnego pasma łącza, niezależnie od aktualnego obciążenia.
+  \item Zapobieganie przeciążeniom sieci przez wczesne wykrywanie i
+        reagowanie na wzrost długości kolejek.
+\end{itemize}
+
+% -----------------------------------------------------------------------
+\subsection*{4. Krótko opisz znane algorytmy działania kolejkowania pakietów
+w urządzeniach sieciowych.}
+
+\begin{description}
+  \item[Priority Output Queuing (POQ)]
+        Definiuje cztery kolejki per interfejs: z wysokim, normalnym, średnim
+        i niskim priorytetem. Kolejki są opróżniane w tej kolejności; kolejka
+        o niższym priorytecie obsługiwana jest tylko wtedy, gdy w kolejkach
+        o wyższych priorytetach nie ma żadnych pakietów. Zaletą jest prostota
+        i pewność, że ruch wysokopriorytetowy nie jest nigdy blokowany przez
+        ruch niskoprzyorytetowy. Wadą jest brak gwarancji czasu dostępu do
+        medium w każdej chwili (możliwe opóźnienie wynikające z pakietów
+        aktualnie wysyłanych z niższej kolejki). Nadaje się do małych sieci.
+
+  \item[Custom Queuing (CQ)]
+        Umożliwia zdefiniowanie do 16 kolejek danych oraz jednej kolejki
+        systemowej. Administratorzy przydzielają każdej kolejce procentową
+        część dostępnego pasma interfejsu routera. Router cyklicznie sprawdza
+        każdą kolejkę i wysyła z niej tyle bajtów, ile wynika z przydzielonego
+        pasma. Gwarantuje to, że zarezerwowane pasmo jest zawsze dostępne dla
+        danej klasy ruchu, nawet gdy łącze jest w pełni obciążone. Kolejki
+        można definiować na podstawie protokołu, aplikacji lub numeru portu.
+        Nadaje się dobrze do sieci LAN.
+
+  \item[WRED (\emph{Weighted Random Early Detection})]
+        Łączy mechanizm priorytetyzacji IP Precedence z algorytmem RED
+        (\emph{Random Early Detection}). RED zapobiega przeciążeniom, wykrywając
+        nadchodzące nasycenie kolejki i losowo odrzucając pakiety od nadawców
+        generujących duży ruch, co wywołuje u nich zmniejszenie okna transmisji
+        TCP. WRED dodaje do tego uwzględnienie priorytetów: pakiety z wyższym
+        priorytetem są przepuszczane, a pakiety z niższym priorytetem są
+        odrzucane wcześniej. Konfigurowane są progi i wagi dla pakietów
+        o różnym priorytecie. Działa tylko dla rodziny TCP/IP; nadaje się
+        do routerów wewnątrz sieci rozległych.
+\end{description}
+
+% -----------------------------------------------------------------------
+\subsection*{5. Jakie metody mogą zostać zastosowane w celu podniesienia
+wydajności łączy w transmisjach multimedialnych?}
+
+\begin{description}
+  \item[Fragmentacja i przeplatanie pakietów (LFI)]
+        Duże pakiety danych są dzielone na mniejsze fragmenty i umieszczane
+        w kolejce. Jeśli w tym czasie nadejdzie pakiet głosowy o wyższym
+        priorytecie, zostaje przesunięty na początek kolejki i wysłany
+        niezwłocznie. Samo kolejkowanie bez fragmentacji nie pomaga, bo duży
+        pakiet wysyłany jest niepodzielnie; dopiero połączenie obu technik
+        zapewnia niskie opóźnienia dla głosu.
+
+  \item[Kompresja nagłówków]
+        Sumaryczna wielkość nagłówków IP + UDP + RTP wynosi 40~bajtów, podczas
+        gdy same dane głosowe to zwykle 150~bajtów. Kompresja nagłówków
+        zmniejsza ich łączny rozmiar do 2--5~bajtów. Ma to istotne znaczenie
+        przy transmisji dużej liczby krótkich pakietów głosowych, szczególnie
+        na łączach o małej szybkości.
+
+  \item[Kompresja danych (kodeki głosowe)]
+        Kodeki zmniejszają wymagane pasmo wielokrotnie względem nieskompresowanego
+        PCM (64~kb/s), kosztem pewnego opóźnienia kodowania i nieznacznego
+        obniżenia jakości. Przegląd kodeków i ich parametrów zawiera pytanie 8.
+
+  \item[Listy routingu]
+        Pozwalają przydzielić ruchowi głosowemu dedykowane interfejsy wyjściowe,
+        adres następnego routera lub wymusić konkretną wartość pola ToS,
+        zapewniając specjalne traktowanie połączeń głosowych przez całą sieć.
+\end{description}
+
+% -----------------------------------------------------------------------
+\subsection*{6. Do czego służy protokół RTP?}
+
+RTP (\emph{Real Time Protocol}, RFC~3550) jest protokołem warstwy aplikacji
+przeznaczonym do \textbf{przesyłania danych multimedialnych w czasie rzeczywistym},
+takich jak transmisja głosu i wideo. Działa nad protokołem UDP (a nie TCP),
+by uniknąć opóźnień wynikających z mechanizmów niezawodności.
+
+Protokół RTP zapewnia:
+\begin{itemize}
+  \item \textbf{Numerowanie sekwencyjne pakietów} (ang.\ \emph{sequence number}),
+        umożliwiające odbiorniku wykrycie utraty lub zmiany kolejności pakietów.
+  \item \textbf{Znaczniki czasu} (ang.\ \emph{timestamp}), pozwalające na
+        prawidłową synchronizację odtwarzania strumienia i obliczanie jittera.
+  \item \textbf{Identyfikację typu ładunku} (ang.\ \emph{payload type}),
+        informującą o zastosowanym kodeku (np.\ G.711, G.729, H.264).
+  \item \textbf{Identyfikator źródła} (SSRC), umożliwiający rozróżnienie wielu
+        strumieni w ramach jednej sesji.
+\end{itemize}
+
+RTP współpracuje z protokołem RTCP (\emph{RTP Control Protocol}), który
+dostarcza statystyki sesji: utratę pakietów, jitter i opóźnienie.
+
+% -----------------------------------------------------------------------
+\subsection*{7. Wyjaśnij zastosowanie pola ToS nagłówka IP w sieciach
+wielousługowych.}
+
+Pole \textbf{ToS} (\emph{Type of Service}) w nagłówku IPv4 służy do
+\textbf{oznaczania pakietów priorytetem}, dzięki czemu urządzenia sieciowe
+mogą różnicować sposób ich traktowania. W sieciach wielousługowych (głos,
+wideo, dane) pozwala to zagwarantować niskie opóźnienia dla ruchu
+wrażliwego czasowo przy jednoczesnym przepuszczaniu ruchu o niższym priorytecie
+w miarę dostępności pasma.
+
+W praktyce stosuje się mechanizm \textbf{IP Precedence}, który wykorzystuje
+trzy pierwsze bity pola ToS do zdefiniowania czterech klas priorytetu
+(dwie są zarezerwowane). Priorytety mogą być nadawane przez urządzenia końcowe
+(telefony IP, oprogramowanie) lub routery brzegowe, a następnie respektowane
+przez wszystkie urządzenia na trasie pakietu.
+
+Kluczowym zagadnieniem przy wdrożeniu jest wiarygodność oznaczeń. Stosuje
+się dwa modele:
+\begin{itemize}
+  \item \textbf{Zaufane połączenie graniczne} (\emph{trusted boundary}):
+        administrator kontroluje urządzenia po obu stronach połączenia
+        i ma pewność, że wartości ToS są ustawiane prawidłowo.
+  \item \textbf{Wymuszona klasyfikacja na portach przełącznika}: dla połączeń
+        z urządzeniami zewnętrznymi porty przełącznika są konfigurowane tak,
+        by nadpisywać oznaczenia ToS zgodnie z lokalną polityką, niezależnie
+        od ustawień urządzeń końcowych.
+\end{itemize}
+
+Pole ToS, wraz z protokołem RSVP (rezerwacja pasma end-to-end, zob.\ pytanie 10),
+tworzy podstawę mechanizmów QoS na całej trasie pakietu.
+
+% -----------------------------------------------------------------------
+\subsection*{8. Czym różnią się między sobą metody kodowania głosu?}
+
+Metody kodowania głosu różnią się przede wszystkim \textbf{wymaganym pasmem
+transmisji}, \textbf{opóźnieniem wprowadzanym przez koder} oraz
+\textbf{jakością odtwarzanego dźwięku} (mierzoną oceną MOS,
+\emph{Mean Opinion Score}, w skali 0--5):
+
+\begin{description}
+  \item[PCM (G.711, \emph{Pulse Code Modulation})]
+        Standardowa metoda stosowana w tradycyjnej telefonii. Próbkuje sygnał
+        analogowy z częstotliwością 8~kHz (wynikającą z twierdzenia Nyquista
+        dla pasma 200--3400~Hz), każda próbka kodowana jest 8 bitami, co daje
+        przepływność 64~kb/s. Opóźnienie: 0,125~ms. Ocena MOS: 4,1.
+  \item[AD-PCM (G.726, \emph{Adaptive Differential PCM})]
+        Koduje różnicę między kolejnymi próbkami zamiast wartości bezwzględnej,
+        uzyskując 32~kb/s przy zachowaniu jakości porównywalnej z PCM.
+        Opóźnienie: 1~ms. Ocena MOS: 4,1.
+  \item[CS-ACELP (G.729, \emph{Code-Excited Linear Prediction})]
+        Metoda parametryczna: nie przesyła spróbkowanego sygnału, lecz jedynie
+        parametry modelu głosu. Wymagane pasmo: 8~kb/s. Opóźnienie: 10~ms.
+        Ocena MOS: ok.\ 3,92.
+\end{description}
+
+Ogólna zasada jest następująca: im bardziej zaawansowana metoda kompresji
+(niższe pasmo), tym większe opóźnienie kodowania i nieco niższa jakość. Ocena
+MOS poniżej 3,0 wyklucza praktyczne zastosowanie do rozmów telefonicznych.
+Wpływ opóźnienia kodowania na łączne opóźnienie transmisji omawia pytanie 9.
+
+% -----------------------------------------------------------------------
+\subsection*{9. Jakie czynniki wpływają na powstawanie opóźnień w transmisji
+pakietów? Dlaczego te opóźnienia mają znaczenie przy transmisji głosu?}
+
+\textbf{Źródła opóźnień:}
+
+\begin{itemize}
+  \item \textbf{Opóźnienie kodowania i kompresji.}
+        Koder musi zebrać próbki dźwięku zanim wyśle pakiet. Dla G.729:
+        co 10~ms generowany jest nowy pakiet, a jego kompresja zajmuje kolejne
+        15~ms, więc pierwszy pakiet jest wysyłany dopiero po 25~ms.
+  \item \textbf{Opóźnienie kolejkowania w urządzeniach sieciowych.}
+        Pakiety czekają w kolejkach routerów i przełączników. Na łączu 64~kb/s
+        pakiet 1500~bajtów może być transmitowany przez ok.\ 188~ms.
+  \item \textbf{Opóźnienie propagacji.}
+        Czas przejścia sygnału przez medium fizyczne (ok.\ 5~ms/1000~km dla
+        kabla; znacznie więcej dla satelity).
+  \item \textbf{Opóźnienie przetwarzania w routerach.}
+        Każdy router dodaje kilka do kilkunastu milisekund.
+  \item \textbf{Duże pakiety blokujące dostęp do łącza.}
+        Router wysyłający duży pakiet danych nie może jednocześnie wysłać
+        pakietu głosowego; bez fragmentacji tworzy się opóźnienie równe
+        czasowi transmisji całego dużego pakietu.
+\end{itemize}
+
+\textbf{Znaczenie opóźnień dla transmisji głosu:}
+
+Transmisja głosu ma charakter interaktywny i odbywa się w czasie rzeczywistym.
+Opóźnienie powyżej 150--200~ms (ITU-T G.114) jest wyraźnie odczuwalne przez
+rozmówców jako irytujące echo lub nakładanie się wypowiedzi. W odróżnieniu od
+transferu plików, przy transmisji głosu nie można po prostu buforować i
+retransmitować opóźnionych pakietów: spóźniony pakiet jest bezużyteczny
+i należy go odrzucić. Dlatego wszystkie opóźnienia muszą mieścić się w ścisłych
+granicach czasowych, a ich minimalizacja jest kluczowym celem projektowania
+sieci VoIP.
+
+% -----------------------------------------------------------------------
+\subsection*{10. Do czego służy protokół RSVP?}
+
+RSVP (\emph{Resource Reservation Protocol}, RFC~2205) jest protokołem
+sygnalizacyjnym służącym do \textbf{rezerwacji zasobów sieciowych} (przede
+wszystkim pasma i buforów) na całej trasie pakietu między nadawcą a odbiorcą.
+
+Działanie: aplikacja żądająca transmisji w czasie rzeczywistym (np.\ rozmowa
+VoIP) wysyła żądanie rezerwacji zasobów przez wszystkie routery na ścieżce do
+odbiorcy. Każdy router, który akceptuje żądanie, rezerwuje określone pasmo
+dla danego strumienia danych i odrzuca żądanie, jeśli zasoby są niedostępne.
+
+Zastosowanie RSVP razem z polem IP Precedence (lub polem DSCP, \emph{Differentiated
+Services Code Point}) pozwala zapewnić \textbf{end-to-end QoS} na całej
+trasie pakietu, również przez sieci rozległe oparte na różnych protokołach
+warstwy pierwszej i drugiej (Frame Relay, ATM, SONET, PPP). Dzięki temu
+możliwe jest zagwarantowanie parametrów transmisji (pasmo, opóźnienie, jitter)
+wymaganych przez aplikacje multimedialne działające w czasie rzeczywistym.
+
+\end{document}
