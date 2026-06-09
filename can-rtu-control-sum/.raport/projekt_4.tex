@@ -1,0 +1,437 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[polish]{polski}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{etoolbox}
+
+% lstlisting nigdy nie łamany między stronami
+\BeforeBeginEnvironment{lstlisting}{\begin{minipage}{\linewidth}}
+\AfterEndEnvironment{lstlisting}{\end{minipage}}
+
+\geometry{margin=2cm}
+
+\definecolor{codebg}{rgb}{0.97,0.97,0.97}
+\definecolor{codekey}{rgb}{0.0,0.3,0.7}
+\definecolor{codecomment}{rgb}{0.2,0.5,0.2}
+\definecolor{codestring}{rgb}{0.6,0.1,0.1}
+
+\lstset{
+    language=C++,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{codekey}\bfseries,
+    commentstyle=\color{codecomment}\itshape,
+    stringstyle=\color{codestring},
+    backgroundcolor=\color{codebg},
+    frame=single,
+    framesep=4pt,
+    breaklines=true,
+    showstringspaces=false,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    xleftmargin=2em,
+    tabsize=4,
+    columns=fullflexible,
+    literate=
+        {ą}{{\k{a}}}1 {Ą}{{\k{A}}}1
+        {ę}{{\k{e}}}1 {Ę}{{\k{E}}}1
+        {ó}{{\'o}}1   {Ó}{{\'O}}1
+        {ś}{{\'s}}1   {Ś}{{\'S}}1
+        {ż}{{\.z}}1   {Ż}{{\.Z}}1
+        {ź}{{\'z}}1   {Ź}{{\'Z}}1
+        {ć}{{\'c}}1   {Ć}{{\'C}}1
+        {ń}{{\'n}}1   {Ń}{{\'N}}1
+        {ł}{{\l{}}}1  {Ł}{{\L{}}}1,
+}
+
+\title{Systemy czasu rzeczywistego, Projekt 4}
+\author{Piotr Gugnowski, wydział EiTI, nr indeksu 320690}
+\date{Czerwiec 2026}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\maketitle
+
+% ═══════════════════════════════════════════════════════════════════════════════
+\section*{Zadanie 4.1 — System CAN: suma kontrolna}
+% ═══════════════════════════════════════════════════════════════════════════════
+
+\subsection*{Treść zadania}
+
+Jak wiemy, determinizm jest bardzo ważnym, ale nie jedynym i~często nie
+najważniejszym wymaganiem stawianym sieciom czasu rzeczywistego. W~praktyce
+ogromną rolę odgrywa bezpieczeństwo przesyłanych informacji. Pod tym pojęciem
+rozumiemy w~węższym sensie zgodność informacji nadawanej i~odbieranej w~sieci.
+W~szerszym sensie bezpieczeństwo informacji przesyłanych w~sieci polega również
+na ich odpowiednim zabezpieczeniu w~celu utrudnienia lub uniemożliwienia dostępu
+do nich stronom trzecim, lub/i~zastosowaniu odpowiednich technik kryptograficznych.
+W~tym zadaniu interesować nas będzie wyłącznie bezpieczeństwo w~zdefiniowanym
+wyżej węższym sensie. Jak wiadomo, na skutek zakłóceń komunikacyjnych np.\
+wskutek oddziaływania silnych zaburzeń elektromagnetycznych, przesyłana
+informacja może ulec zniekształceniu. Dla celów detekcji błędów transmisji
+stosowane są różne techniki. Jedną z~nich jest stosowana dość powszechnie
+w~profesjonalnych sieciach komunikacyjnych redundantna informacja zwana sumą
+kontrolną lub cykliczną sumą redundancyjną. Suma kontrolna jest tworzona według
+określonego algorytmu na podstawie wysyłanych informacji przez nadajnik.
+Suma ta dołączana jest do strumienia wysyłanej informacji. Odbiornik tworzy własną
+sumę kontrolną według tego samego algorytmu co nadajnik, ale na podstawie
+strumienia danych odbieranych. Różnica w~odebranej i~zrekonstruowanej w~odbiorniku
+sumie kontrolnej wskazuje na wystąpienie błędu lub błędów komunikacyjnych
+i~pozwala na podjęcie odpowiednich akcji. Należy jednak pamiętać, że:
+
+\begin{itemize}
+    \item istnieje skończone prawdopodobieństwo zgodności sum kontrolnych odebranej
+          i~utworzonej w~odbiorniku mimo wystąpienia błędu lub błędów transmisji;
+    \item prawdopodobieństwo to jest w~profesjonalnych systemach sieciowych znikome
+          i~minimalizowane dzięki odpowiedniemu doborowi algorytmów wyznaczania sumy
+          kontrolnej i~starannemu doborowi wielomianów generacyjnych.
+\end{itemize}
+
+W~przypadku sieci CAN stosowany jest następujący algorytm.
+
+\subsubsection*{Algorytm wyznaczania CRC}
+
+Niech \texttt{CRC\_RG(14:0)} oznacza rejestr przechowujący wartość sumy kontrolnej CRC,
+natomiast \texttt{NXTBIT} oznacza kolejny bit transmitowanego ciągu bitów począwszy od
+SOF i~skończywszy na ostatnim bicie pola DATA. Suma CRC obliczana jest następująco:
+
+\begin{lstlisting}[language={},basicstyle=\ttfamily\small,numbers=none,frame=single,backgroundcolor=\color{codebg}]
+CRC_RG = 0;
+REPEAT
+    CRCNXT = NXTBIT EXOR CRC_RG(14)
+    CRC_RG(14:1) = CRC_RG(13:0);
+    CRC_RG(0) = 0;
+    IF CRCNXT THEN
+        CRC_RG(14:0) = CRC_RG(14:0) EXOR (4599hex);
+    ENDIF
+UNTIL (zostanie osiągnięte CRC SEQUENCE lub wystąpi błąd transmisji)
+\end{lstlisting}
+
+Napisać aplikację wyznaczającą sumę kontrolną dla sieci CAN. Aplikacja ta ma być
+optymalizowana ze względu na minimalizację czasu realizacji algorytmu wyznaczania CRC.
+
+\textbf{Założenia:}
+\begin{enumerate}[label=\alph*)]
+    \item Aplikacja ma umożliwiać wprowadzenie z~klawiatury ciągu do 96~bitów.
+    \item Aplikacja powinna wyznaczyć sumę kontrolną z~wprowadzonego ciągu
+          bitowego i~wyświetlić ją w~postaci heksadecymalnej.
+    \item Aplikacja powinna mieć możliwość deklarowania liczby powtórzeń obliczenia
+          sumy kontrolnej od~1 do~$10^9$.
+    \item Aplikacja powinna mieć możliwość pomiaru i~wyświetlania łącznego czasu
+          realizacji zadeklarowanej liczby powtórzeń obliczenia sumy kontrolnej oraz
+          średniego czasu jednokrotnej realizacji obliczenia CRC.
+    \item Aplikacja powinna być dostarczona w~postaci kodu maszynowego wykonywalnego.
+\end{enumerate}
+
+\subsection*{Implementacja}
+
+Kod źródłowy znajduje się w~pliku \texttt{src/main.cpp}.
+
+\subsubsection*{Reprezentacja wejścia}
+
+Ciąg bitów wczytany z~klawiatury jest pakowany w~strukturę \texttt{BitInput}:
+16 bajtów przechowuje bity MSB-first (pierwszy znak → bit~7 bajtu~0,
+drugi → bit~6 bajtu~0 itd.), a~pole \texttt{nbits} przechowuje dokładną
+liczbę bitów (0–96).
+
+\subsubsection*{Tablica przeglądowa generowana w~czasie kompilacji}
+
+Funkcja \texttt{can\_crc15()} oblicza CRC-15/CAN w~dwóch fazach:
+
+\begin{enumerate}[label=\arabic*.]
+    \item \textbf{Bajt po bajcie} (dla $\lfloor n/8 \rfloor$ pełnych bajtów)
+          przy użyciu 256-elementowej tablicy \texttt{TABLE} (512~B, mieści się
+          w~L1~cache). Klucz do tablicy: \texttt{key = ((crc >> 7) \^{} byte) \& 0xFF};
+          aktualizacja: \texttt{crc = ((crc << 8) \& 0x7FFF) \^{} TABLE[key]}.
+          Daje 8-krotną redukcję liczby iteracji względem przetwarzania
+          bit po bicie.
+    \item \textbf{Pozostałe bity} (0–7, ostatni niepełny bajt): iteracja
+          bit po bicie z~bezgałęziowym krokiem \\
+          \texttt{crc \^{}= crcnxt * 0x4599u} (eliminacja branch misprediction).
+\end{enumerate}
+
+Tablica jest obliczana jako \texttt{constexpr}.
+
+\subsubsection*{Zabezpieczenia integralności benchmarku}
+
+\begin{itemize}
+    \item \textbf{\texttt{volatile uint16\_t sink}} — kompilator nie może
+          wynieść wywołania funkcji poza pętlę (efekt uboczny obserwowalny
+          z~zewnątrz).
+    \item \textbf{\texttt{\_\_attribute\_\_((noinline))}} na funkcji
+          \texttt{can\_crc15} — blokuje inlining, przez co kompilator nie
+          widzi wnętrza funkcji i~nie może udowodnić stałości wyniku.
+\end{itemize}
+
+\subsubsection*{Pełny kod funkcji CRC}
+
+\begin{lstlisting}
+uint16_t can_crc15(const BitInput& in) noexcept {
+    uint16_t crc = 0;
+    const int full = in.nbits / 8;
+    const int rem  = in.nbits % 8;
+
+    for (int i = 0; i < full; ++i) {
+        const uint8_t key =
+            static_cast<uint8_t>(((crc >> 7) ^ in.bytes[i]) & 0xFFu);
+        crc = static_cast<uint16_t>(
+            ((crc << 8) & 0x7FFFu) ^ TABLE.v[key]);
+    }
+
+    if (rem) {
+        const uint8_t last = in.bytes[full];
+        for (int i = 7; i >= 8 - rem; --i) {
+            const uint8_t crcnxt = static_cast<uint8_t>(
+                ((crc >> 14) ^ ((last >> i) & 1u)) & 1u);
+            crc = static_cast<uint16_t>((crc << 1) & 0x7FFFu);
+            crc ^= static_cast<uint16_t>(crcnxt * 0x4599u);
+        }
+    }
+    return crc;
+}
+\end{lstlisting}
+
+\subsection*{Wyniki i~pomiary czasu}
+
+Pomiary wykonano na Apple Silicon (ARM64), kompilacja:
+\texttt{clang++ -O3 -march=native}, $n = 10^9$ powtórzeń.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{llrrr}
+\toprule
+\textbf{Wejście} & \textbf{Bity} & \textbf{CRC-15/CAN} & \textbf{Czas łączny} & \textbf{Czas/iter.} \\
+\midrule
+96 zer  (\texttt{00...0}) & 96 & \texttt{0x0000} & 319,5~ms & 0,320~ns \\
+96 jedynek (\texttt{11...1}) & 96 & \texttt{0x072A} & 313,7~ms & 0,314~ns \\
+\bottomrule
+\end{tabular}
+\caption{Wyniki benchmarku CRC-15/CAN dla $n = 10^9$ iteracji.}
+\end{table}
+
+Wynik dla 96~zer (\texttt{0x0000}) jest zgodny z~oczekiwaniami:
+wszystkie bity wejściowe zerowe powodują, że \texttt{CRCNXT} jest zawsze
+zerem, rejestr CRC pozostaje zerowy przez cały czas obliczeń.
+
+% ═══════════════════════════════════════════════════════════════════════════════
+\section*{Zadanie 4.2 — System CAN: identyfikatory wiadomości}
+% ═══════════════════════════════════════════════════════════════════════════════
+
+\subsection*{Treść zadania}
+
+Jak wiadomo, węzły CAN są generatorami wiadomości. Każda wiadomość ma swój
+własny identyfikator. Zależnie od specyfikacji sieci CAN występują w~specyfikacji
+standardowej identyfikatory 11-bitowe, a~w~specyfikacji rozszerzonej identyfikatory
+29-bitowe. W~związku z~tym teoretycznie możliwe jest zaadresowanie maksymalnie
+odpowiednio $2^{11}$ lub $2^{29}$ wiadomości.
+
+Czy tak jest w~rzeczywistości? Proszę podać istniejące ograniczenia w~specyfikacji
+CAN (o~ile występują).
+
+\subsection*{Odpowiedź}
+
+Nie, nie wszystkie kombinacje identyfikatorów są dostępne. Specyfikacja CAN zabrania
+używania identyfikatorów, których \textbf{pierwsze 7~bitów} to same jedynki
+(\texttt{1111111\dots}). Taka kombinacja wygląda na magistrali identycznie jak sygnał
+błędu pasywnego (\textit{passive error flag} - 6~bitów recessive) lub jak przerwa
+między ramkami (IFS), co mogłoby wprowadzić odbiorniki w~błąd.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Format} & \textbf{Bity ID} & \textbf{Zakazane ID} & \textbf{Dostępne ID} \\
+\midrule
+Standardowy & 11 & $2^{4} = 16$ & $2048 - 16 = \mathbf{2032}$ \\
+Rozszerzony & 29 & $2^{22} = 4\,194\,304$ &
+    $536\,870\,912 - 4\,194\,304 = \mathbf{532\,676\,608}$ \\
+\bottomrule
+\end{tabular}
+\caption{Rzeczywista liczba dostępnych identyfikatorów w~sieci CAN.}
+\end{table}
+
+W~praktyce ograniczenie to jest nieistotne, typowa sieć przemysłowa korzysta
+z~kilkudziesięciu do kilkuset typów wiadomości, co stanowi ułamek procenta
+dostępnej przestrzeni adresowej.
+
+% ═══════════════════════════════════════════════════════════════════════════════
+\section*{Zadanie 4.3 — System CAN: rzeczywisty czas trwania transmisji ramki}
+% ═══════════════════════════════════════════════════════════════════════════════
+
+\subsection*{Treść zadania}
+
+Dokładna analiza czasu transmisji ramki CAN wskazuje, że przy transmisji tej samej
+liczby bajtów informacji w~polu danych czas trwania transmisji jest różny. Czas ten
+zależy od kontekstu. Przyczyna leży w~sposobie kodowania informacji, a~w~szczególności
+w~zastosowanej technice synchronizacji transferów sieciowych wspieranych przez
+dodatkowe bity synchronizujące (technika \textit{bit stuffing}).
+
+\textbf{Założenia:}
+\begin{enumerate}[label=\alph*)]
+    \item Prędkość transmisji w~sieci CAN: 1\,Mb/s.
+    \item Przesyłamy w~polu danych 8~bajtów informacji.
+    \item Identyfikator wiadomości podlega swobodnemu wyborowi z~ew.\ ograniczeniami
+          (por.\ zadanie~4.2).
+    \item Stosujemy ramkę o~identyfikatorze 29-bitowym.
+    \item Współczynnik efektywności transmisji zdefiniowany jako stosunek liczby bitów
+          wysłanej informacji (64~bity) do całkowitej liczby bitów ramki (łącznie
+          z~bitami przerwy między ramkami i~bitami dodatkowymi dodanymi przez operację
+          \textit{bit stuffing}).
+\end{enumerate}
+
+\begin{enumerate}[label=\alph*)]
+    \item Wyznaczyć najkrótszy czas transmisji całej ramki CAN. Podać przykład
+          zawartości pola danych, dla której ma to miejsce. Podać wartość współczynnika
+          efektywności transmisji.
+    \item Wyznaczyć najdłuższy czas transmisji całej ramki CAN. Podać przykład
+          zawartości pola danych, dla której ma to miejsce. Podać wartość współczynnika
+          efektywności transmisji.
+\end{enumerate}
+
+\subsection*{Wyprowadzenie liczby bitów ramki}
+
+Rozszerzona ramka CAN~2.0B z~8~bajtami danych składa się z~następujących pól:
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{lr}
+\toprule
+\textbf{Pole} & \textbf{Bitów} \\
+\midrule
+SOF                    &  1 \\
+Arbitration (ID+flagi) & 32 \\
+Control                &  6 \\
+Data                   & 64 \\
+CRC sequence           & 15 \\
+CRC delimiter          &  1 \\
+ACK slot               &  1 \\
+ACK delimiter          &  1 \\
+EOF                    &  7 \\
+IFS                    &  3 \\
+\midrule
+\textbf{Łącznie}       & \textbf{131} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{equation*}
+L_{\text{stały}} = 1 + 32 + 6 + 64 + 15 + 1 + 1 + 1 + 7 + 3 = \mathbf{131\ \text{bitów}}
+\end{equation*}
+
+Technika \textbf{bit stuffing} polega na automatycznym wstawianiu przez nadajnik
+jednego bitu o~przeciwnej wartości po każdych 5~kolejnych bitach tej samej wartości.
+Odbiornik usuwa te dodatkowe bity. Cel: utrzymanie synchronizacji zegara odbiornika,
+który nie ma osobnego sygnału taktowania i~synchronizuje się na zmianach stanu
+na magistrali.
+
+Bit stuffing obowiązuje dla regionu: SOF + Arbitration + Control + Data + CRC sequence:
+\begin{equation*}
+N_{\text{fill}} = 1 + 32 + 6 + 64 + 15 = \mathbf{118\ \text{bitów}}
+\end{equation*}
+
+Przy prędkości 1\,Mb/s czas jednego bitu wynosi $T_b = 1\,\mu$s.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection*{a) Najkrótszy czas transmisji}
+
+Najkrótszy czas uzyskuje się przy \textbf{zerowej liczbie bitów stuffujących},
+co zachodzi gdy w~regionie 118~bitów nie pojawi się żadna sekwencja 5~kolejnych
+bitów tej samej wartości.
+
+\textbf{Przykład danych spełniających ten warunek:}
+\begin{center}
+\texttt{0x55 0x55 0x55 0x55 0x55 0x55 0x55 0x55}
+\end{center}
+Bajt \texttt{0x55} = \texttt{01010101}$_2$ — bity naprzemienne, nie tworzą
+żadnej sekwencji 5~identycznych.
+Identyfikator musi mieć analogiczną właściwość: żaden fragment jego 29~bitów
+nie może tworzyć serii 5~identycznych, a~ponadto złożenie SOF\,+\,ID\,+\,pola
+Control (łącznie z~wynikową sumą CRC) nie może stworzyć takiej serii na granicy
+sąsiednich pól. W~praktyce identyfikator z~naprzemiennymi bitami
+(postaci \texttt{01010\ldots} lub \texttt{10101\ldots}) spełnia ten warunek
+przy naprzemiennych danych \texttt{0x55}.
+
+\begin{align*}
+L_{\min} &= L_{\text{stały}} + N_{\text{stuff}} = 131 + 0 = \mathbf{131\ \text{bitów}}
+\end{align*}
+\[
+\boxed{T_{\min} = 131 \cdot 1\,\mu\text{s} = \mathbf{131\,\mu\text{s}}}
+\]
+
+\textbf{Współczynnik efektywności transmisji} (stosunek bitów użytecznych do
+wszystkich bitów ramki):
+\[
+\eta_{\max} = \frac{64}{131} \approx \mathbf{48{,}9\%}
+\]
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection*{b) Najdłuższy czas transmisji}
+
+Najdłuższy czas uzyskuje się przy \textbf{maksymalnej liczbie bitów stuffujących}.
+Bit stuffujący jest wstawiany po każdych 5~bitach tej samej wartości, więc
+najgorszy wzorzec to grupy pięciu identycznych bitów:
+\texttt{11111\,00000\,11111\,00000}\ldots
+
+Dla regionu 118~bitów każda grupa 5~bitów wymusi wstawienie 1~bitu stuffującego:
+\[
+N_{\text{stuff,max}} = \left\lfloor \frac{118}{5} \right\rfloor = \mathbf{23}
+\]
+
+\textbf{Przykład danych generujących dużo stuffowania:}
+\begin{center}
+\texttt{0x00 0x00 0x00 0x00 0x00 0x00 0x00 0x00}
+\end{center}
+64~kolejne zera w~polu danych samo w~sobie daje
+$\lfloor 64/5 \rfloor = 12$ bitów stuffujących.
+Aby osiągnąć 23~bity stuffujące łącznie, identyfikator powinien zawierać
+długie serie identycznych bitów (np.\ postaci \texttt{11111\,00000\ldots}),
+a~wynikowa suma kontrolna CRC — obliczana automatycznie z~ID i~danych,
+bez możliwości swobodnego wyboru — musi wspólnie z~ID wypełnić pozostałe
+$23 - 12 = 11$ bitów stuffujących w~regionie poza polem danych.
+Znalezienie wartości ID spełniającej ten warunek wymaga iteracyjnego
+sprawdzania kandydatów z~uwzględnieniem wynikowego CRC.
+
+\begin{align*}
+L_{\max} &= L_{\text{stały}} + N_{\text{stuff,max}} = 131 + 23 = \mathbf{154\ \text{bitów}}
+\end{align*}
+\[
+\boxed{T_{\max} = 154 \cdot 1\,\mu\text{s} = \mathbf{154\,\mu\text{s}}}
+\]
+
+\textbf{Współczynnik efektywności transmisji:}
+\[
+\eta_{\min} = \frac{64}{154} \approx \mathbf{41{,}6\%}
+\]
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection*{Podsumowanie}
+
+\begin{center}
+\begin{tabular}{llllrrrr}
+\toprule
+\textbf{Scenariusz} & \textbf{Dane (8 B)} & \textbf{Bity stałe} & \textbf{Bity stuff.} & \textbf{Łącznie} & \textbf{Wsp. ef. trans. $\bm{\eta}$} \\
+\midrule
+Najkrótsza ramka & \texttt{0x55}$\times$8 & 131 & 0  & 131 & 48,9\% \\
+Najdłuższa ramka & \texttt{0x00}$\times$8 & 131 & 23 & 154 & 41,6\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+
+% Tło teoretyczne i szczegóły implementacyjne — patrz teoria.pdf
+
+\end{document}

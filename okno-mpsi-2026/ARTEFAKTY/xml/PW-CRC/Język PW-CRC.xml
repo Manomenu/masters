@@ -1,0 +1,85 @@
+<?xml  version='1.0' encoding='windows-1252' ?>
+<MDG.Technology version="1.0"><Documentation id="DL-PW-CRC" name="J&#x119;zyk PW-CRC" version="1.1" notes="J&#x119;zyk PW-CRC"/><UMLProfiles><UMLProfile profiletype="uml2">
+	<Documentation id="40E54D5563" name="PW-CRC" version="1.0" notes="PW-CRC"/>
+	<Content>
+		<Stereotypes>
+			<Stereotype name="CRC" alias="CLS063:Gugnowski D&#x105;bkowski Cie&#x15B;la" notes="" cx="0" cy="0" bgcolor="-1" fontcolor="-1" bordercolor="-1" borderwidth="-1" hideicon="0">
+				<AppliesTo>
+					<Apply type="Class">
+						<Property name="isActive" value=""/>
+					</Apply>
+				</AppliesTo>
+			</Stereotype>
+			<Stereotype name="Komunikat" alias="CLS067:Gugnowski D&#x105;bkowski Cie&#x15B;la" notes="" cx="0" cy="0" bgcolor="-1" fontcolor="-1" bordercolor="-1" borderwidth="-1" hideicon="0">
+				<AppliesTo>
+					<Apply type="Operation">
+						<Property name="isOrdered" value=""/>
+						<Property name="isQuery" value="false"/>
+						<Property name="isUnique" value=""/>
+						<Property name="lower" value=""/>
+						<Property name="upper" value=""/>
+					</Apply>
+				</AppliesTo>
+			</Stereotype>
+			<Stereotype name="Odpowiedzialno&#x15B;&#x107;" alias="CLS065:Gugnowski D&#x105;bkowski Cie&#x15B;la" notes="" cx="0" cy="0" bgcolor="-1" fontcolor="-1" bordercolor="-1" borderwidth="-1" hideicon="0">
+				<AppliesTo>
+					<Apply type="Operation">
+						<Property name="isOrdered" value=""/>
+						<Property name="isQuery" value="false"/>
+						<Property name="isUnique" value=""/>
+						<Property name="lower" value=""/>
+						<Property name="upper" value=""/>
+					</Apply>
+				</AppliesTo>
+			</Stereotype>
+		</Stereotypes>
+		<TaggedValueTypes/>
+		<ViewDefinitions/>
+		<Metamodel/>
+	</Content>
+</UMLProfile></UMLProfiles><DiagramProfile><UMLProfile profiletype="uml2">
+	<Documentation id="5F14E905F8" name="PW-CRC" version="1.0" notes="PW-CRC"/>
+	<Content>
+		<Stereotypes>
+			<Stereotype name="Sesja CRC" alias="CLS075:Gugnowski D&#x105;bkowski Cie&#x15B;la" notes="" cx="0" cy="0" bgcolor="-1" fontcolor="-1" bordercolor="-1" borderwidth="-1" hideicon="0">
+				<AppliesTo>
+					<Apply type="Diagram_Sequence"/>
+				</AppliesTo>
+			</Stereotype>
+			<Stereotype name="Struktura dziedziny" alias="CLS073:Gugnowski D&#x105;bkowski Cie&#x15B;la" notes="" cx="0" cy="0" bgcolor="-1" fontcolor="-1" bordercolor="-1" borderwidth="-1" hideicon="0">
+				<AppliesTo>
+					<Apply type="Diagram_Logical"/>
+				</AppliesTo>
+			</Stereotype>
+		</Stereotypes>
+		<TaggedValueTypes/>
+		<ViewDefinitions/>
+		<Metamodel/>
+	</Content>
+</UMLProfile></DiagramProfile><UIToolboxes><UMLProfile profiletype="uml2">
+	<Documentation id="F8055BD6BD" name="PW-CRC" version="1.0" notes="PW-CRC"/>
+	<Content>
+		<Stereotypes>
+			<Stereotype name="Struktura" alias="CLS078:Gugnowski D&#x105;bkowski Cie&#x15B;la" notes="" cx="0" cy="0" bgcolor="-1" fontcolor="-1" bordercolor="-1" borderwidth="-1" hideicon="0">
+				<AppliesTo>
+					<Apply type="ToolboxPage"/>
+				</AppliesTo>
+				<TaggedValues>
+					<Tag name="PW-CRC::CRC(UML::Class)" type="" description="" unit="" values="" default="Karta CRC"/>
+					<Tag name="PW-CRC::Odpowiedzialno&#x15B;&#x107;(UML::Operation)" type="" description="" unit="" values="" default="Odpowiedzialno&#x15B;&#x107;"/>
+				</TaggedValues>
+			</Stereotype>
+			<Stereotype name="Zachowanie" alias="CLS079:Gugnowski D&#x105;bkowski Cie&#x15B;la" notes="" cx="0" cy="0" bgcolor="-1" fontcolor="-1" bordercolor="-1" borderwidth="-1" hideicon="0">
+				<AppliesTo>
+					<Apply type="ToolboxPage"/>
+				</AppliesTo>
+				<TaggedValues>
+					<Tag name="PW-CRC::Komunikat(UML::Operation)" type="" description="" unit="" values="" default="Komunikat"/>
+				</TaggedValues>
+			</Stereotype>
+		</Stereotypes>
+		<TaggedValueTypes/>
+		<ViewDefinitions/>
+		<Metamodel/>
+	</Content>
+</UMLProfile></UIToolboxes></MDG.Technology>

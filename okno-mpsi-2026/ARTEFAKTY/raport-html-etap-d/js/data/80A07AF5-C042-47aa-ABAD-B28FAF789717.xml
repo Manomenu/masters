@@ -1,0 +1,9 @@
+tocTab[tocTab.length] = new Array("0.1.1.1.2:1", "", "Dane", "EARoot/EA1/EA1/EA1/EA2/EA26.htm", "175.png", "88", "0", "", "Logical diagram0","{3578E90D-88F6-4934-B1F1-D862603900BA}");
+tocTab[tocTab.length] = new Array("0.1.1.1.2:2", "", "«entity» Aplikacja Obsidian", "EARoot/EA1/EA1/EA1/EA2/EA29.htm", "5.png", "E613", "0", "", "Class0","{A383ADEF-1BC4-3939-BF74-9E274DB76EB1}");
+tocTab[tocTab.length] = new Array("0.1.1.1.2:3", "", "«entity» Bot Discord", "EARoot/EA1/EA1/EA1/EA2/EA30.htm", "5.png", "E614", "0", "", "Class0","{99A713C2-5160-3FB3-B1C2-F74CB1ABDEFD}");
+tocTab[tocTab.length] = new Array("0.1.1.1.2:4", "", "«entity» Kolejka zdjęć", "EARoot/EA1/EA1/EA1/EA2/EA31.htm", "5.png", "E615", "0", "", "Class0","{AD64C70B-5D29-EE1E-B3D3-5A35FB414730}");
+tocTab[tocTab.length] = new Array("0.1.1.1.2:5", "", "«entity» Notatka analogowa", "EARoot/EA1/EA1/EA1/EA2/EA32.htm", "5.png", "E616", "0", "", "Class0","{A2894520-DCC5-13A1-A07A-FCA10868C742}");
+tocTab[tocTab.length] = new Array("0.1.1.1.2:6", "", "«entity» Notatka Markdown", "EARoot/EA1/EA1/EA1/EA2/EA33.htm", "5.png", "E617", "0", "", "Class0","{908A1272-AEEF-1619-9C71-3FD64E977501}");
+tocTab[tocTab.length] = new Array("0.1.1.1.2:7", "", "«entity» Silnik do inferencji dużych modeli językowych", "EARoot/EA1/EA1/EA1/EA2/EA34.htm", "5.png", "E618", "0", "", "Class0","{842D0666-A9AA-DAA9-AE09-A6FD6D2EA429}");
+tocTab[tocTab.length] = new Array("0.1.1.1.2:8", "", "«entity» Użytkownik", "EARoot/EA1/EA1/EA1/EA2/EA35.htm", "5.png", "E619", "0", "", "Class0","{A73C4B0A-D5E6-0EDE-8CBD-2DD89273F05E}");
+tocTab[tocTab.length] = new Array("0.1.1.1.2:9", "", "«entity» Zaplecze przetwarzające notatki", "EARoot/EA1/EA1/EA1/EA2/EA36.htm", "5.png", "E620", "0", "", "Class0","{8B25673B-BEA8-F012-8AD3-756E92CE4E3A}");

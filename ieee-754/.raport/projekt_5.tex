@@ -1,0 +1,434 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[polish]{polski}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{etoolbox}
+\usepackage{url}
+
+% lstlisting nigdy nie łamany między stronami
+\BeforeBeginEnvironment{lstlisting}{\begin{minipage}{\linewidth}}
+\AfterEndEnvironment{lstlisting}{\end{minipage}}
+
+\geometry{margin=2cm}
+
+\definecolor{codebg}{rgb}{0.97,0.97,0.97}
+\definecolor{codekey}{rgb}{0.0,0.3,0.7}
+\definecolor{codecomment}{rgb}{0.2,0.5,0.2}
+\definecolor{codestring}{rgb}{0.6,0.1,0.1}
+
+\lstset{
+    language=C++,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{codekey}\bfseries,
+    commentstyle=\color{codecomment}\itshape,
+    stringstyle=\color{codestring},
+    backgroundcolor=\color{codebg},
+    frame=single,
+    framesep=4pt,
+    breaklines=true,
+    showstringspaces=false,
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    xleftmargin=2em,
+    tabsize=4,
+    columns=fullflexible,
+    literate=
+        {ą}{{\k{a}}}1 {Ą}{{\k{A}}}1
+        {ę}{{\k{e}}}1 {Ę}{{\k{E}}}1
+        {ó}{{\'o}}1   {Ó}{{\'O}}1
+        {ś}{{\'s}}1   {Ś}{{\'S}}1
+        {ż}{{\.z}}1   {Ż}{{\.Z}}1
+        {ź}{{\'z}}1   {Ź}{{\'Z}}1
+        {ć}{{\'c}}1   {Ć}{{\'C}}1
+        {ń}{{\'n}}1   {Ń}{{\'N}}1
+        {ł}{{\l{}}}1  {Ł}{{\L{}}}1,
+}
+
+\title{Systemy czasu rzeczywistego, Projekt 5}
+\author{Piotr Gugnowski, wydział EiTI, nr indeksu 320690}
+\date{Czerwiec 2026}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\maketitle
+
+% ===============================================================================
+\section*{Zadanie 5.1: Standard IEEE~754: zakresy obu systemów kodowania}
+% ===============================================================================
+
+\subsection*{Treść zadania}
+
+Wyznaczyć zakresy liczb w~obu systemach kodowania: kodzie
+"wewnętrznym" oraz w~standardzie IEEE~754.
+
+% -----------------------------------------------------------------------------
+\subsection*{Analiza struktury bitowej}
+
+Oba formaty są 32-bitowe. Struktura IEEE~754 single precision:
+1~bit znaku, 8~bitów wykładnika z~nadmiarem~127, 23~bity mantysy
+z~niejawnym bitem wiodącym.
+
+Struktura kodu wewnętrznego \textbf{nie jest wprost podana w~treści
+zadania}. Zadanie~5.1 wymaga jednoznacznego wyznaczenia struktury przez
+analizę wzorców bitowych (weryfikacja poniżej).
+
+\subsubsection*{Format IEEE~754 single precision}
+
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Bit 31} & \textbf{Bity 30--23} & \textbf{Bity 22--0} \\
+\hline
+znak $S$ (1 bit) & wykładnik ze~stałą $E_b$ (8 bitów) & mantysa $M$ (23 bity) \\
+\hline
+\end{tabular}
+\end{center}
+
+Wartość liczby znormalizowanej:
+\[
+  (-1)^S \times (1 + M \cdot 2^{-23}) \times 2^{\,E_b - 127}
+  \qquad E_b \in [1,\,254]
+\]
+
+Stała (bias) wykładnika wynosi $127$.
+
+\subsubsection*{Kod "wewnętrzny"}
+
+Na~podstawie tabeli konwersji (np.\ $9 \to \texttt{0x83100000}$,
+$65535 \to \texttt{0x8F7FFF00}$) wyznaczono strukturę bitową:
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{Bit 31} & \textbf{Bity 30--24} & \textbf{Bit 23} & \textbf{Bity 22--0} \\
+\hline
+"1" (wiodąca) & wykładnik $E$ bez stałej (7 bitów) & "0" (padding) & mantysa $M$ (23 bity) \\
+\hline
+\end{tabular}
+\end{center}
+
+Wartość liczby niezerowej:
+\[
+  1 \times (1 + M \cdot 2^{-23}) \times 2^{\,E}
+  \qquad E \in [0,\,127],\quad M \in [0,\,2^{23}-1]
+\]
+
+Zero kodowane jest jako \texttt{0x00000000}.
+
+Kluczowe właściwości kodu wewnętrznego w~porównaniu z~IEEE~754:
+\begin{itemize}
+  \item Brak znaku: format przeznaczony wyłącznie dla liczb nieujemnych.
+  \item Wykładnik \textbf{bez stałej} (unbiased): bezpośrednio wyraża potęgę dwójki,
+        co eliminuje konieczność dodawania/odejmowania stałej 127 przy operacjach
+        arytmetycznych.
+  \item Bit~31 jest jawnym bitem wiodącym "1" mantysy
+        (w~IEEE~754 bit ten jest niejawny: tzw.\ \textit{hidden bit}).
+  \item 7-bitowy wykładnik ogranicza zakres do $2^0$--$2^{127}$,
+        co jest wystarczające dla liczb naturalnych.
+\end{itemize}
+
+% -----------------------------------------------------------------------------
+\subsection*{Weryfikacja na przykładach z tabeli}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{rllll}
+\toprule
+\textbf{Liczba} & \textbf{Kod wewnętrzny} & $E$ & $M$ & \textbf{IEEE 754}\\
+\midrule
+0       & \texttt{0x00000000} & n/d & n/d & \texttt{0x00000000}\\
+1       & \texttt{0x80000000} & 0   & 0            & \texttt{0x3F800000}\\
+2       & \texttt{0x81000000} & 1   & 0            & \texttt{0x40000000}\\
+9       & \texttt{0x83100000} & 3   & \texttt{0x100000} & \texttt{0x41100000}\\
+65535   & \texttt{0x8F7FFF00} & 15  & \texttt{0x7FFF00} & \texttt{0x477FFF00}\\
+65536   & \texttt{0x90000000} & 16  & 0            & \texttt{0x47800000}\\
+\bottomrule
+\end{tabular}
+\caption{Weryfikacja struktury bitowej na danych z treści zadania.
+         Dla każdej liczby $E_{\text{IEEE}} = E + 127$.}
+\end{table}
+
+\noindent Przykładowo dla $9 = 1{,}001_2 \times 2^3$:
+\[
+  E = 3,\quad M = 0{,}001_2 = 2^{-3} \Rightarrow
+  M \cdot 2^{23} = 2^{20} = \texttt{0x100000}
+\]
+\[
+  E_{\text{IEEE}} = 3 + 127 = 130 = \texttt{0x82} \Rightarrow
+  \text{IEEE} = (130 \ll 23) \mid \texttt{0x100000} = \texttt{0x41100000} \checkmark
+\]
+
+% -----------------------------------------------------------------------------
+\subsection*{Zakresy}
+
+\subsubsection*{Kod "wewnętrzny"}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{ll}
+\toprule
+\textbf{Parametr} & \textbf{Wartość} \\
+\midrule
+Zakres & $\{0\} \cup \bigl[1,\ (2-2^{-23})\cdot2^{127}\bigr]$ \\
+Minimalna wartość niezerowa & $1{,}0 \times 2^0 = 1$ \\
+Maksymalna wartość          & $(2 - 2^{-23}) \times 2^{127} \approx 3{,}403 \times 10^{38}$ \\
+Zakres wykładnika $E$       & $[0,\ 127]$ (7 bitów, bez stałej) \\
+Zakres mantysy $M$          & $[0,\ 2^{23}-1]$ (23 bity) \\
+Liczby ujemne               & brak \\
+Ułamki $< 1$                & brak \\
+\bottomrule
+\end{tabular}
+\caption{Zakres kodu "wewnętrznego".}
+\end{table}
+
+Maksymalna reprezentowalna liczba naturalna (dokładnie):
+\[
+  N_{\max} = (2 - 2^{-23}) \times 2^{127} = 2^{128} - 2^{104}
+  \approx 3{,}403 \times 10^{38}
+\]
+
+Największa liczba całkowita reprezentowana dokładnie (bez utraty precyzji):
+format dysponuje 23 bitami mantysy oraz jawnym bitem wiodącym w~bicie~31,
+co daje łącznie 24 bity znaczące.
+Największa liczba całkowita mieszcząca się w~24 bitach to same jedynki:
+\[
+  N_{\text{int,max}} = \underbrace{11\ldots1}_{24\text{ bity}} = 2^{24} - 1 = 16\,777\,215
+\]
+
+\subsubsection*{Standard IEEE~754 single precision}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{ll}
+\toprule
+\textbf{Parametr} & \textbf{Wartość} \\
+\midrule
+Zakres & $\bigl[-(2-2^{-23})\cdot2^{127},\ (2-2^{-23})\cdot2^{127}\bigr]$ \\
+Minimalna wartość dodatnia & $2^{-126} \approx 1{,}175 \times 10^{-38}$ \\
+Maksymalna wartość & $(2 - 2^{-23}) \times 2^{127} \approx 3{,}403 \times 10^{38}$ \\
+Zakres wykładnika & $E \in [-126,\ +127]$ (bias $= 127$) \\
+Zakres mantysy $M$ & $[0,\ 2^{23}-1]$ (23 bity) \\
+Liczby ujemne & tak (bit znaku) \\
+\bottomrule
+\end{tabular}
+\caption{Zakres standardu IEEE~754 single precision (32-bit).}
+\end{table}
+
+\subsubsection*{Porównanie zakresów}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lll}
+\toprule
+\textbf{Cecha} & \textbf{Kod wewnętrzny} & \textbf{IEEE 754} \\
+\midrule
+Zakres dodatni & $[1,\ (2-2^{-23})\cdot2^{127}]$ & $[2^{-126},\ (2-2^{-23})\cdot2^{127}]$ \\
+Wartości $< 1$ & nie & tak \\
+Liczby ujemne  & nie & tak \\
+Bity wykładnika & 7 (bez stałej) & 8 (stała 127) \\
+Bity mantysy   & 23 & 23 \\
+\bottomrule
+\end{tabular}
+\caption{Porównanie cech obu systemów kodowania.}
+\end{table}
+
+Oba formaty mają identyczną wartość maksymalną i~identyczne pole mantysy (23~bity).
+Różnica leży w~zakresie: IEEE~754 obsługuje ułamki i~liczby ujemne,
+kod wewnętrzny ogranicza się do liczb całkowitych $\geq 1$.
+W~zamian kod wewnętrzny jest prostszy sprzętowo: wykładnik bez stałej
+i~jawny bit wiodący eliminują dodatkowe operacje przy każdym obliczeniu.
+
+% ===============================================================================
+\section*{Zadanie 5.2: Konwersja kodu wewnętrznego do IEEE~754}
+% ===============================================================================
+
+\subsection*{Treść zadania}
+
+Napisać aplikację konwersji kodu "wewnętrznego" liczb
+zmiennoprzecinkowych do~kodu liczb zmiennoprzecinkowych zgodnych z~IEEE~754.
+Aplikacja ma umożliwiać wprowadzenie z~klawiatury liczb w~kodzie binarnym
+naturalnym.
+
+\subsection*{Implementacja}
+
+Aplikacja napisana w~C++17, kompilowalna na systemach Windows i~macOS
+(clang++ lub g++). Do budowania wymagany jest \texttt{just}.
+W~folderze projektu znajduje się skompilowana wersja dla systemu Windows.
+Kod źródłowy składa się z~dwóch plików:
+
+\begin{itemize}
+  \item \texttt{src/shared.cpp} / \texttt{src/shared.h}: funkcje wspólne
+        (konwersje, wyświetlanie, parsowanie wejścia),
+  \item \texttt{src/task2\_internal\_to\_ieee.cpp}: punkt wejścia (\texttt{main}).
+\end{itemize}
+
+\subsubsection*{Format wejścia}
+
+Zgodnie z~założeniem zadania użytkownik wprowadza kod wewnętrzny jako
+\textbf{32-bitowy ciąg w~kodzie binarnym naturalnym} (ciąg znaków \texttt{0}/\texttt{1}).
+Spacje są dozwolone i~ignorowane, co umożliwia grupowanie bitów dla czytelności.
+
+Przykład dla liczby~9, której kod wewnętrzny to \texttt{0x83100000}:
+
+
+\begin{lstlisting}[language={},numbers=none]
+$ ./task2_internal_to_ieee 10000011000100000000000000000000
+$ ./task2_internal_to_ieee "1000 0011 0001 0000 0000 0000 0000 0000"
+\end{lstlisting}
+
+Aplikacja obsługuje dwa tryby:
+\begin{enumerate}[label=\arabic*.]
+  \item \textbf{Argument wiersza poleceń}: 32-bitowy ciąg binarny podany bezpośrednio.
+  \item \textbf{Tryb interaktywny}: aplikacja wyświetla prompt i~czeka na wejście.
+\end{enumerate}
+
+\subsubsection*{Algorytm konwersji: kod wewnętrzny $\to$ IEEE~754}
+
+Konwersja sprowadza się do trzech operacji bitowych:
+\begin{enumerate}[label=\arabic*.]
+  \item Wyodrębnienie wykładnika bez stałej $E$ z~bitów~[30:24].
+  \item Dodanie stałej~127: $E_b = E + 127$.
+  \item Złożenie słowa IEEE~754: bit znaku~$= 0$, wykładnik $= E_b$,
+        mantysa bez zmian.
+\end{enumerate}
+
+\begin{lstlisting}
+uint32_t internal_to_ieee754(uint32_t internal) noexcept {
+    if (internal == 0u) return 0u;
+    const uint32_t E      = (internal >> 24u) & 0x7Fu;
+    const uint32_t mant   = internal & 0x007FFFFFu;
+    const uint32_t E_ieee = E + 127u;
+    return (E_ieee << 23u) | mant;
+}
+\end{lstlisting}
+
+\subsubsection*{Wyniki dla danych wzorcowych}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{rlll}
+\toprule
+\textbf{Liczba} & \textbf{Wejscie (kod binarny naturalny)} & \textbf{Kod wewn. (hex)} & \textbf{IEEE~754 (hex)} \\
+\midrule
+0     & \texttt{0000...0} (32 zera)              & \texttt{0x00000000} & \texttt{0x00000000} \\
+1     & \texttt{1000 0000 0000 ... 0000 0000}    & \texttt{0x80000000} & \texttt{0x3F800000} \\
+9     & \texttt{1000 0011 0001 0000 0000 0000} \ldots & \texttt{0x83100000} & \texttt{0x41100000} \\
+65535 & \texttt{1000 1111 0111 1111 1111 1111} \ldots & \texttt{0x8F7FFF00} & \texttt{0x477FFF00} \\
+65536 & \texttt{1001 0000 0000 ... 0000 0000}    & \texttt{0x90000000} & \texttt{0x47800000} \\
+\bottomrule
+\end{tabular}
+\caption{Wyniki konwersji: wejscie w kodzie binarnym naturalnym, wyjscie IEEE~754.}
+\end{table}
+
+% ===============================================================================
+\section*{Zadanie 5.3: Konwersja IEEE~754 do kodu wewnętrznego}
+% ===============================================================================
+
+\subsection*{Treść zadania}
+
+Napisać aplikację konwersji liczb zmiennoprzecinkowych zgodnych z~IEEE~754
+do~postaci kodu "wewnętrznego".
+
+\subsection*{Implementacja}
+
+Aplikacja napisana w~C++17, kompilowalna na systemach Windows i~macOS
+(clang++ lub g++). Kod źródłowy:
+
+\begin{itemize}
+  \item \texttt{src/shared.cpp} / \texttt{src/shared.h}: funkcje wspólne
+        (te same co w~zadaniu~5.2),
+  \item \texttt{src/task3\_ieee\_to\_internal.cpp}: punkt wejścia (\texttt{main}).
+\end{itemize}
+
+\subsubsection*{Format wejścia}
+
+Użytkownik wprowadza \textbf{32-bitową wartość IEEE~754 w~postaci szesnastkowej}
+(z~przedrostkiem \texttt{0x} lub bez). Aplikacja odczytuje wzorzec bitowy słowa
+i~konwertuje go na kod wewnętrzny, wypisując wynik również w~postaci szesnastkowej.
+
+Przykłady wywołania:
+
+
+\begin{lstlisting}[language={},numbers=none]
+$ ./task3_ieee_to_internal 0x41100000
+$ ./task3_ieee_to_internal 477FFF00
+$ ./task3_ieee_to_internal 0x3F800000
+\end{lstlisting}
+
+Aplikacja obsługuje dwa tryby:
+\begin{enumerate}[label=\arabic*.]
+  \item \textbf{Argument wiersza poleceń}: wartość szesnastkowa podana bezpośrednio.
+  \item \textbf{Tryb interaktywny}: aplikacja wyświetla prompt i~czeka na wejście.
+\end{enumerate}
+
+\subsubsection*{Walidacja wejścia}
+
+Przed konwersją sprawdzane są warunki konieczne, gdyż zakres kodu wewnętrznego
+jest podzbiorem zakresu IEEE~754:
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\textbf{Warunek} & \textbf{Komunikat błędu} \\
+\midrule
+Bit~31~$= 1$ (liczba ujemna) & liczba ujemna: niedozwolona \\
+$E_b = 255$ (Inf lub NaN)    & Inf/NaN: brak reprezentacji \\
+$E_b = 0$ (zdenormalizowana) & subnormal: poza zakresem \\
+$E = E_b - 127 < 0$          & wartość~$< 1$: poza zakresem \\
+$E > 127$                    & wykładnik~$> 127$: poza zakresem \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsubsection*{Algorytm konwersji: IEEE~754 $\to$ kod wewnętrzny}
+
+\begin{lstlisting}
+uint32_t ieee754_to_internal(uint32_t ieee) noexcept {
+    if (ieee == 0u) return 0u;
+    // ... (walidacja jak w tabeli powyżej) ...
+    const uint32_t E_biased = (ieee >> 23u) & 0xFFu;
+    const uint32_t mant     = ieee & 0x007FFFFFu;
+    const int32_t  E        = static_cast<int32_t>(E_biased) - 127;
+    return 0x80000000u | (static_cast<uint32_t>(E) << 24u) | mant;
+}
+\end{lstlisting}
+
+Operacja jest dokładnie odwrotna do~zadania~5.2: zamiast dodawać stałą~127
+odejmujemy ją; zamiast zerować bit~31 ustawiamy go na~1.
+Mantysa (bity~22:0) pozostaje niezmieniona w~obu kierunkach.
+
+\subsubsection*{Wyniki dla danych wzorcowych}
+
+\begin{table}[H]
+\centering
+\begin{tabular}{rll}
+\toprule
+\textbf{Liczba} & \textbf{IEEE~754 (wejście)} & \textbf{Kod wewnętrzny (wyjście)} \\
+\midrule
+0     & \texttt{0x00000000} & \texttt{0x00000000} \\
+1     & \texttt{0x3F800000} & \texttt{0x80000000} \\
+2     & \texttt{0x40000000} & \texttt{0x81000000} \\
+9     & \texttt{0x41100000} & \texttt{0x83100000} \\
+65535 & \texttt{0x477FFF00} & \texttt{0x8F7FFF00} \\
+65536 & \texttt{0x47800000} & \texttt{0x90000000} \\
+\bottomrule
+\end{tabular}
+\caption{Wyniki konwersji IEEE~754 $\to$ kod wewnętrzny. Wejście i~wyjście w~postaci szesnastkowej.}
+\end{table}
+
+\end{document}

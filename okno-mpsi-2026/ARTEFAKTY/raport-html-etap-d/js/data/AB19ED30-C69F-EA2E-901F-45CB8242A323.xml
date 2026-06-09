@@ -1,0 +1,10 @@
+tocTab[tocTab.length] = new Array("0.1.3.3:1", "", "Przekształcenie notatki analogowej", "EARoot/EA1/EA3/EA3/EA168.htm", "175.png", "72", "0", "", "Logical diagram0","{8C8D1CCA-8693-33D6-9A06-F1C197E3BE75}");
+tocTab[tocTab.length] = new Array("0.1.3.3:2", "", "«Type» Aplikacja Obsidian", "EARoot/EA1/EA3/EA3/EA171.htm", "5.png", "E484", "0", "", "Class0","{DE56941D-79B1-482a-A383-ADEF1BC43939}");
+tocTab[tocTab.length] = new Array("0.1.3.3:3", "", "«Type» Bot Discord", "EARoot/EA1/EA3/EA3/EA172.htm", "5.png", "E489", "0", "", "Class0","{3FF79405-DF40-495d-99A7-13C251603FB3}");
+tocTab[tocTab.length] = new Array("0.1.3.3:4", "", "«Type» Kolejka zdjęć", "EARoot/EA1/EA3/EA3/EA173.htm", "5.png", "E486", "0", "", "Class0","{F6EEC0AB-721C-4ba7-AD64-C70B5D29EE1E}");
+tocTab[tocTab.length] = new Array("0.1.3.3:5", "", "«Type» Notatka analogowa", "EARoot/EA1/EA3/EA3/EA174.htm", "5.png", "E481", "0", "", "Class0","{6E00DE65-49C5-4f73-A289-4520DCC513A1}");
+tocTab[tocTab.length] = new Array("0.1.3.3:6", "", "«Type» Notatka Markdown", "EARoot/EA1/EA3/EA3/EA175.htm", "5.png", "E485", "0", "", "Class0","{FA4A87D5-634E-49af-908A-1272AEEF1619}");
+tocTab[tocTab.length] = new Array("0.1.3.3:7", "", "«Type» Silnik do inferencji dużych modeli językowych", "EARoot/EA1/EA3/EA3/EA176.htm", "5.png", "E488", "0", "", "Class0","{091F812E-84B4-4d9c-842D-0666A9AADAA9}");
+tocTab[tocTab.length] = new Array("0.1.3.3:8", "", "Typ notatki", "EARoot/EA1/EA3/EA3/EA177.htm", "247.png", "E500", "0", "", "Enumeration0","{12F4D71D-EF75-432c-A504-7F9F8ABC42BF}");
+tocTab[tocTab.length] = new Array("0.1.3.3:9", "", "«Type» Użytkownik", "EARoot/EA1/EA3/EA3/EA178.htm", "5.png", "E483", "0", "", "Class0","{90CCBCE4-943C-481c-A73C-4B0AD5E60EDE}");
+tocTab[tocTab.length] = new Array("0.1.3.3:10", "", "«Type» Zaplecze przetwarzające notatki", "EARoot/EA1/EA3/EA3/EA179.htm", "5.png", "E487", "0", "", "Class0","{72D4EED2-FBC6-419c-8B25-673BBEA8F012}");

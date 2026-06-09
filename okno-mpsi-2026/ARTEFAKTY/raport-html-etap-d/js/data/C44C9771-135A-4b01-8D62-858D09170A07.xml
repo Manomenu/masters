@@ -1,0 +1,7 @@
+tocTab[tocTab.length] = new Array("0.1.1.1.1:1", "", "Dane", "EARoot/EA1/EA1/EA1/EA1/EA17.htm", "175.png", "87", "0", "", "Logical diagram0","{1BFDB699-FD17-43ac-A760-97310D27F672}");
+tocTab[tocTab.length] = new Array("0.1.1.1.1:2", "", "«entity» Discord Bot", "EARoot/EA1/EA1/EA1/EA1/EA20.htm", "5.png", "E627", "0", "", "Class0","{9100B829-03A4-F23A-9AB5-8D75B93F3B10}");
+tocTab[tocTab.length] = new Array("0.1.1.1.1:3", "", "«entity» Discord serwer", "EARoot/EA1/EA1/EA1/EA1/EA21.htm", "5.png", "E628", "0", "", "Class0","{81E2DEDB-05C8-26B2-9251-0B4AC643A093}");
+tocTab[tocTab.length] = new Array("0.1.1.1.1:4", "", "«entity» Lokalizacja zapisu notatek Markdown", "EARoot/EA1/EA1/EA1/EA1/EA22.htm", "5.png", "E629", "0", "", "Class0","{9BF1D95E-2F05-647F-BB12-1FA8783B77C7}");
+tocTab[tocTab.length] = new Array("0.1.1.1.1:5", "", "«entity» Obsidian", "EARoot/EA1/EA1/EA1/EA1/EA23.htm", "5.png", "E630", "0", "", "Class0","{A4356A7D-C590-0DF8-81A5-DAFEB8ABFCEE}");
+tocTab[tocTab.length] = new Array("0.1.1.1.1:6", "", "«entity» Użytkownik", "EARoot/EA1/EA1/EA1/EA1/EA24.htm", "5.png", "E631", "0", "", "Class0","{8D0FC976-1FD4-3927-93F2-A8FA082B1971}");
+tocTab[tocTab.length] = new Array("0.1.1.1.1:7", "", "«entity» Zaplecze systemu notes AI", "EARoot/EA1/EA1/EA1/EA1/EA25.htm", "5.png", "E632", "0", "", "Class0","{9F2DA66C-7C86-30CA-9548-B1F6F642320B}");

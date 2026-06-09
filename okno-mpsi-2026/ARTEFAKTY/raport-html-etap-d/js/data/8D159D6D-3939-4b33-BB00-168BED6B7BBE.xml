@@ -1,0 +1,5 @@
+tocTab[tocTab.length] = new Array("0.1.1.3.1:1", "", "Logika aplikacyjna", "EARoot/EA1/EA1/EA3/EA1/EA58.htm", "175.png", "86", "0", "", "Logical diagram0","{CF04BD3A-F49B-4394-8F96-43754F344E47}");
+tocTab[tocTab.length] = new Array("0.1.1.3.1:2", "", "«control» Ster_DodajUżytkownika", "EARoot/EA1/EA1/EA3/EA1/EA61.htm", "5.png", "E606", "0", "", "Class0","{ABC576C3-84B1-49d9-A45C-F71B266B95CD}");
+tocTab[tocTab.length] = new Array("0.1.1.3.1:3", "", "«control» Ster_UstawModel", "EARoot/EA1/EA1/EA3/EA1/EA62.htm", "5.png", "E608", "0", "", "Class0","{E258192C-3791-4bc4-B089-A7EC7E036458}");
+tocTab[tocTab.length] = new Array("0.1.1.3.1:4", "", "«control» Ster_UstawŚcieżkę", "EARoot/EA1/EA1/EA3/EA1/EA63.htm", "5.png", "E607", "0", "", "Class0","{7E7BA3A0-C143-45fe-969D-5B9F8D279AD6}");
+tocTab[tocTab.length] = new Array("0.1.1.3.1:5", "", "«control» Ster_ZaakceptujToken", "EARoot/EA1/EA1/EA3/EA1/EA64.htm", "5.png", "E605", "0", "", "Class0","{9FBBD599-E319-426c-9A98-8AD7181B0EDF}");

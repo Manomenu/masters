@@ -1,0 +1,6 @@
+README.md                                          — opis projektu, instrukcja budowania
+justfile                                           — komendy build/run/clean
+src/main.cpp                                       — kod źródłowy C++
+can_crc.exe                                        — skompilowany plik wykonywalny
+.raport/                                           — pliki techniczne, wykorzystane do realizacji projektu
+sys_czas_rzecz_proj4_piotr_gugnowski_320690.pdf    — finalny raport do oddania

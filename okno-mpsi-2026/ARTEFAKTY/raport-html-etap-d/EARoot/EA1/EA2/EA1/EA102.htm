@@ -1,0 +1,409 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Przetworzyć notatki odręczne do Markdown</title>
+<link href="../../../../css/ea.css" rel="stylesheet" type="text/css" />
+<script language="JavaScript" src="../../../../js/displayToc.js" type="text/javascript"></script>
+<script>
+
+  function switchProjectProperties() {
+			if (document.getElementById("proj00").style.display == "none") {
+				document.getElementById("proj00").style.display = "revert";
+				document.getElementById("proj01").style.display = "revert";
+				document.getElementById("proj02").style.display = "revert";
+				document.getElementById("proj03").style.display = "revert";
+				document.getElementById("proj04").style.display = "revert";
+				document.getElementById("proj05").style.display = "revert";
+			} else {
+				document.getElementById("proj00").style.display = "none";
+				document.getElementById("proj01").style.display = "none";
+				document.getElementById("proj02").style.display = "none";
+				document.getElementById("proj03").style.display = "none";
+				document.getElementById("proj04").style.display = "none";
+				document.getElementById("proj05").style.display = "none";
+			}
+}
+
+		function switchAdvancedProperties(){
+
+			if (document.getElementById("adv00").style.display == "none") {;
+				document.getElementById("adv00").style.display = "revert";
+				document.getElementById("adv01").style.display = "revert";
+			} else {
+				document.getElementById("adv00").style.display = "none";
+				document.getElementById("adv01").style.display = "none";
+			}
+		}
+		function initPage()
+        {			
+			var divs = document.getElementsByClassName("ObjectDetailsNotes");
+			for (var j = 0; j < divs.length; j++) {
+				var tmpStr = divs[j].innerHTML;
+				tmpStr = tmpStr.replace(/#gt;/g, "&gt;");
+				tmpStr = tmpStr.replace(/#lt;/g, "&lt;");
+
+				tmpStr = tmpStr.replace(/&gt;/g, ">");
+				tmpStr = tmpStr.replace(/&lt;/g, "<");
+
+				divs[j].innerHTML = tmpStr;
+			}
+
+            if (document.getElementById('TableGroup') != null)
+            {
+                toggleItem(document.getElementById('TableGroup').getElementsByTagName('li')[0].id.replace("Title", ""));
+            }
+
+        }
+		
+		document.addEventListener('DOMContentLoaded', () => {
+			const img = document.querySelector('.diagram_image img');
+			const mapAreas = document.querySelectorAll('area');
+
+			if (img && mapAreas.length > 0) {
+				//Get original and rendered image dimensions
+				const originalWidth = img.naturalWidth;
+				const originalHeight = img.naturalHeight;
+				const renderedWidth = img.clientWidth || originalWidth; 
+				const renderedHeight = img.clientHeight || originalHeight; 
+				
+				//Calculate scaling factors
+				const scaleX = renderedWidth / originalWidth;
+				const scaleY = renderedHeight / originalHeight;
+
+				//Adjust map area coordinates
+				mapAreas.forEach((area) => {
+				  const originalCoords = area.getAttribute('coords').split(',').map(Number);
+				  const scaledCoords = originalCoords.map((coord, index) =>
+					index % 2 === 0 ? coord * scaleX : coord * scaleY
+				  );
+				  area.setAttribute('coords', scaledCoords.join(','));
+				});
+			}
+		});
+</script>
+<style>
+
+</style>
+</head>
+<body onload="initPage();">
+<div class="section group" >
+
+		<div class="col span_2_of_2 header_frame">
+			<h1> Przetworzyć notatki odręczne do Markdown </h1>
+			<!-- <img class="header_image" src="../../../../images/warsaw_university_of_technology_logo.jpg" align="right" alt="Header Image" />-->
+			<img class="header_image" src="../../../../images/warsaw_university_of_technology_logo.jpg" align="right" alt="Header Image" />
+		</div>
+		<div class="col span_2_of_2 breadcrumb_frame">
+			<p><a href="../../../../index.htm">Etap D</a> / <a href="../../EA1.htm">Analiza systemu NOTES-AI</a> / <a href="../EA72.htm">Kooperacje</a> / <a href="EA93.htm">Przekształcanie notatki</a> / <a href="EA102.htm">Przetworzyć notatki odręczne do Markdown</a></p>
+		</div>
+			
+		<table class="contentmaintable">
+			<!-- <tfoot>
+				<tr>
+					<td>foot1</td>
+					<td>foot2</td>
+				</tr>
+			</tfoot> -->
+			<tbody>
+				<tr>
+					<td class="indexcell">
+						<div class="projectBrowserTitle">Project: </div>
+						<ul>
+<li><img src="../../../../images/175.png" alt=""/> <a href="EA85.htm">VOPC_Przetworzyć notatki odręczne do Markdown</a></li>
+<li><img src="../../../../images/207.png" alt="Interaction"/> <a href="EA106.htm">Przetworzyć notatki odręczne do Markdown</a></li>
+</ul>
+
+					</td>
+					<td class="contentcell"><div class="pageHeader"></div>
+<div class="PageBody">
+	<span class="ObjectTitle">Przetworzyć notatki odręczne do Markdown  : Public   Collaborate</span>
+	<table border="0" class="ObjectDetails">
+		<tr>
+			<td width="15%" class="ObjectDetailsTopic">Created:</td>
+			<td width="85%" class="ObjectDetailsValue">14.03.2026 14:43:26</td>
+		</tr>
+		<tr>
+			<td class="ObjectDetailsTopic">Modified:</td>
+			<td class="ObjectDetailsValue">18.03.2026 22:43:04</td>
+		</tr>
+		<tr style="height: 10px"><td colspan="2"></td></tr>
+		<tr>
+			<td class="ObjectDetailsTopic"><button onclick="switchProjectProperties()"><img src="../../../../images/plus03.gif" align="absmiddle" id="proj" /></button>Project:</td>
+			<td class="ObjectDetailsValue"></td>
+		</tr>
+		<tr id="proj00" style="display: none;">
+			<td class="ObjectDetailsTopic" style="padding-left: 18px;">Author:</td>
+			<td class="ObjectDetailsValue">adamd</td>
+		</tr>
+		<tr id="proj01" style="display: none;">
+			<td class="ObjectDetailsTopic" style="padding-left: 18px;">Version:</td>
+			<td class="ObjectDetailsValue">1.0</td>
+		</tr>
+		<tr id="proj02" style="display: none;">
+			<td class="ObjectDetailsTopic" style="padding-left: 18px;">Phase:</td>
+			<td class="ObjectDetailsValue">1.0</td>
+		</tr>
+		<tr id="proj03" style="display: none;">
+			<td class="ObjectDetailsTopic" style="padding-left: 18px;">Status:</td>
+			<td class="ObjectDetailsValue">Proposed</td>
+		</tr>
+		<tr id="proj04" style="display: none;">
+			<td class="ObjectDetailsTopic" style="padding-left: 18px;">Complexity:</td>
+			<td class="ObjectDetailsValue">Easy</td>
+		</tr>
+		<tr id="proj05" style="display: none;">
+			<td class="ObjectDetailsTopic" style="padding-left: 18px;">Difficulty:</td>
+			<td class="ObjectDetailsValue"></td>
+		</tr>
+		<tr id="proj06" style="display: none;">
+			<td class="ObjectDetailsTopic" style="padding-left: 18px;">Priority:</td>
+			<td class="ObjectDetailsValue"></td>
+		</tr>
+		<tr id="proj05" style="display: none;">
+			<td class="ObjectDetailsTopic" >Multiplicity:</td>
+			<td class="ObjectDetailsValue"></td>
+		</tr>
+		<tr>
+			<td class="ObjectDetailsTopic"><button onclick="switchAdvancedProperties()"><img src="../../../../images/plus03.gif" align="absmiddle" id="adv" /></button>Advanced:</td>
+			<td class="ObjectDetailsValue"></td>
+		</tr>
+		<tr id="adv00" style="display: none;">
+			<td class="ObjectDetailsTopic" style="padding-left: 18px;">UUID:</td>
+			<td class="ObjectDetailsValue">{88F9F123-A07F-4DA6-AA42-2582E5A771DC}</td>
+		</tr>
+		<tr id="adv01" style="display: none;">
+			<td class="ObjectDetailsTopic" style="padding-left: 18px;">Appears In:</td>
+			<td class="ObjectDetailsValue"></td>
+		</tr>
+	</table>
+	<div class="ObjectDetailsNotes">G&#322;&#243;wny przypadek u&#380;ycia systemu. U&#380;ytkownik wysy&#322;a zdj&#281;cie notatki odr&#281;cznej, a system automatycznie rozpoznaje tekst i struktur&#281;, parsuje tagi #lt;NOTE#gt;, generuje semantyczny plik Markdown, nadaje sensown&#261; nazw&#281; i zapisuje go do Vaultu Obsidiana&lt;br/&gt;</div>
+
+	<div class="TableGroup" id="TableGroup">
+		<ul class="ItemTitle">
+			<li onClick="parent != null ? parent.toggleItem('AssociationsTo') : toggleItem('AssociationsTo');" id="AssociationsToTitle">Associations To</li>
+			<li onClick="parent != null ? parent.toggleItem('Constraints') : toggleItem('Constraints');" id="ConstraintsTitle">Constraints</li>
+			<li onClick="parent != null ? parent.toggleItem('Scenario') : toggleItem('Scenario');" id="ScenarioTitle">Scenarios</li>
+			<li onClick="parent != null ? parent.toggleItem('CustomProperties') : toggleItem('CustomProperties');" id="CustomPropertiesTitle">Advanced</li>
+			<li onClick="parent != null ? parent.toggleItem('Links') : toggleItem('Links');" id="LinksTitle">Other Links</li>
+		</ul>
+		<div class="ItemBody" id="AssociationsToTable">
+			<table class="Table ea_table">
+				<tr>
+					<td width="40%" class="TableHeading">Element</td>
+					<td width="30%" class="TableHeading">Source Role</td>
+					<td width="30%" class="TableHeading">Target Role</td>
+				</tr>
+				<tr>
+					<td width="40%" class="TableRow" valign="top">
+						Obsidian Vault<br />
+						Actor &nbsp;
+					</td>
+					<td width="30%" class="TableRow" valign="top">
+						<strong>Name:</strong> &nbsp;<br />
+						&nbsp;
+					</td>
+					<td width="30%" class="TableRow" valign="top">
+						<strong>Name:</strong> &nbsp;<br />
+						&nbsp;	
+					</td>
+				</tr>
+				<tr>
+					<td class="TableRowBottomDashed"  colspan="3">
+						<div class="DetailsDivParent"><button onclick="switchProjectProperties()"><img src="../../../../images/minus03.gif" align="absmiddle" id="DetailsImageLink146" /></button>Details:
+							<div id="detailsDIVLink146" class="DetailsDiv" >
+							&nbsp;
+							</div>
+						</div>
+					</td>
+				</tr>
+
+			</table>
+		</div>
+		<div class="ItemBody" id="ConstraintsTable">
+			<table class="Table ea_table">
+			  	<tr>
+					<td width="80%" class="TableHeading">Constraint</td>
+					<td width="10%" class="TableHeading">Type</td>
+					<td width="10%" class="TableHeading">Status</td>
+				</tr>
+				<tr>
+					<td width="80%" class="TableRow">Użytkownik wysłał co najmniej jedno zdjęcie notatki na Discordzie.</td>
+					<td width="10%" class="TableRow">Pre-condition</td>
+					<td width="10%" class="TableRow">Approved</td>
+				</tr>
+				<tr>
+					<td class="TableRowBottomDashed" colspan="3">
+						<div class="DetailsDivParent"><button onclick="switchProjectProperties()"><img src="../../../../images/minus03.gif" align="absmiddle" id="DetailsImageConstraints147" /></button>Details:
+							<div id="detailsDIVConstraints147" class="DetailsDiv" >
+							&nbsp;
+							</div>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td width="80%" class="TableRow">Plik .md został zapisany w Vaultcie i użytkownik otrzymał potwierdzenie na Discordzie.</td>
+					<td width="10%" class="TableRow">Post-condition</td>
+					<td width="10%" class="TableRow">Approved</td>
+				</tr>
+				<tr>
+					<td class="TableRowBottomDashed" colspan="3">
+						<div class="DetailsDivParent"><button onclick="switchProjectProperties()"><img src="../../../../images/minus03.gif" align="absmiddle" id="DetailsImageConstraints148" /></button>Details:
+							<div id="detailsDIVConstraints148" class="DetailsDiv" >
+							&nbsp;
+							</div>
+						</div>
+					</td>
+				</tr>
+
+			</table>
+		</div>
+		<div class="ItemBody" id="ScenarioTable">
+			<table align="center" border="0" cellspacing="0" cellpadding="0" class="Table">
+				<tr>
+					<td width="90%" class="TableHeading">Scenario</td>
+					<td width="10%" class="TableHeading">Type</td>
+				</tr>
+				<tr>
+					<td width="90%" class="TableRow">Scenariusz główny</td>
+					<td width="10%" class="TableRow">Basic Path</td>
+				</tr>
+				<tr>
+					<td class="TableRowBottomDashed"  colspan="2">
+						<div class="DetailsDivParent">
+						Details:
+							<div id="detailsDIVScenario149" class="DetailsDiv" >
+							<div class="ObjectDetailsNotes">&lt;ol&gt;<br />&lt;li&gt;U&#380;ytkownik wysy&#322;a zdj&#281;cie notatki odr&#281;cznej na dedykowany kana&#322; Discord.&lt;/li&gt;&lt;li&gt;Bot NOTES-AI odbiera za&#322;&#261;cznik i umieszcza zadanie w kolejce asynchronicznej.&lt;/li&gt;&lt;li&gt;System przesy&#322;a obraz do modelu AI.&lt;/li&gt;&lt;li&gt;Model rozpoznaje tekst oraz struktur&#281; notatki (nag&#322;&#243;wki, listy, tabele, pogrubienia).&lt;/li&gt;&lt;li&gt;System identyfikuje i parsuje bloki tag&#243;w technicznych #lt;NOTE#gt;&#8230;#lt;/NOTE#gt;.&lt;/li&gt;&lt;li&gt;Model AI generuje semantyczny plik Markdown z zachowaniem logicznej struktury.&lt;/li&gt;&lt;li&gt;System automatycznie nadaje plikowi kr&#243;tk&#261;, sensown&#261; nazw&#281; na podstawie tre&#347;ci.&lt;/li&gt;&lt;li&gt;Gotowy plik .md jest zapisywany do folderu Obsidian Vault.&lt;/li&gt;&lt;li&gt;System wysy&#322;a potwierdzenie sukcesu na Discordzie.&lt;/li&gt;&lt;/ol&gt;&lt;p/&gt;</div>
+
+							</div>
+						</div>
+						<div class="StrucuturedDivParent">
+Steps:
+	<div id="stepDIVScenario149" class="StrucuturedDiv" >
+		<div class="ObjectDetailsNotes">1. U&#380;ytkownik wysy&#322;a zdj&#281;cie notatki odr&#281;cznej na dedykowany kana&#322; Discord.&lt;br/&gt; <br />2. NOTES-AI odbiera za&#322;&#261;cznik i umieszcza zadanie w kolejce.&lt;br/&gt; <br />3. System przesy&#322;a obraz do modelu AI.&lt;br/&gt; <br />4. Model rozpoznaje tekst oraz struktur&#281; notatki (nag&#322;ówki, listy, tabele, pogrubienia).&lt;br/&gt; <br />5. System identyfikuje i parsuje bloki tagów technicznych #lt;NOTE#gt;&#8230;#lt;/NOTE#gt;.&lt;br/&gt; <br />6. Model AI generuje semantyczny plik Markdown z zachowaniem logicznej struktury.&lt;br/&gt; <br />7. System automatycznie nadaje plikowi krótk&#261; nazw&#281; na podstawie tre&#347;ci.&lt;br/&gt; <br />8. Gotowy plik .md jest zapisywany do folderu Obsidian Vault.&lt;br/&gt; <br />9. System wysy&#322;a potwierdzenie sukcesu na Discord.&lt;br/&gt; <br /></div>
+	</div>
+</div>
+
+						
+					</td>
+				</tr>
+				<tr>
+					<td width="90%" class="TableRow">Przetwarzanie serii zdjęć</td>
+					<td width="10%" class="TableRow">Alternate</td>
+				</tr>
+				<tr>
+					<td class="TableRowBottomDashed"  colspan="2">
+						<div class="DetailsDivParent">
+						Details:
+							<div id="detailsDIVScenario151" class="DetailsDiv" >
+							<div class="ObjectDetailsNotes">W kroku 1 u&#380;ytkownik wysy&#322;a kilka zdj&#281;&#263; naraz, system przetwarza je kolejno w kolejce (bez utraty danych).&lt;br/&gt;</div>
+
+							</div>
+						</div>
+						<div class="StrucuturedDivParent">
+Steps:
+	<div id="stepDIVScenario151" class="StrucuturedDiv" >
+		<div class="ObjectDetailsNotes">1. U&#380;ytkownik przesy&#322;a wiele zdj&#281;&#263; notatki w pojedynczej wiadomo&#347;ci&lt;br/&gt; <br />2. System przetwarza zdj&#281;cia jako pojedyncz&#261;, d&#322;u&#380;sz&#261; notatk&#281;&lt;br/&gt; <br /></div>
+	</div>
+</div>
+
+						
+					</td>
+				</tr>
+				<tr>
+					<td width="90%" class="TableRow">Niska jakość zdjęcia</td>
+					<td width="10%" class="TableRow">Exception</td>
+				</tr>
+				<tr>
+					<td class="TableRowBottomDashed"  colspan="2">
+						<div class="DetailsDivParent">
+						Details:
+							<div id="detailsDIVScenario153" class="DetailsDiv" >
+							<div class="ObjectDetailsNotes">W kroku 4 jako&#347;&#263; rozpoznania #lt; 95%, system przerywa przetwarzanie i przechodzi do przypadku &#8222;Otrzyma&#263; potwierdzenie przetworzenia&#8221; z komunikatem b&#322;&#281;du.&lt;br/&gt;</div>
+
+							</div>
+						</div>
+						<div class="StrucuturedDivParent">
+Steps:
+	<div id="stepDIVScenario153" class="StrucuturedDiv" >
+		<div class="ObjectDetailsNotes">1. W kroku 4 jako&#347;&#263; rozpoznania #lt; 95%&lt;br/&gt; <br />2. System przerywa przetwarzanie i przechodzi do przypadku &#8222;Otrzyma&#263; potwierdzenie przetworzenia&#8221; z komunikatem b&#322;&#281;du wys&#322;anym na Discord.&lt;br/&gt; <br /></div>
+	</div>
+</div>
+
+						
+					</td>
+				</tr>
+
+			</table>
+		</div>
+		<div class="ItemBody" id="CustomPropertiesTable">
+			<table class="Table ea_table">
+				<tr>
+					<td width="30%" class="TableHeading">Property</td>
+					<td width="70%" class="TableHeading">Value</td>
+				</tr>
+			<tr>
+				<td width="30%" class="TableRow">isFinalSpecialization:</td>
+				<td width="70%" class="TableRow">0</td>
+			</tr>
+
+
+			</table>
+		</div>		<div class="ItemBody" id="LinksTable">
+			<table class="Table ea_table">
+				<tr>
+					<td width="30%" class="TableHeading">Object</td>
+					<td width="10%" class="TableHeading">Type</td>
+					<td width="10%" class="TableHeading">Connection</td>
+					<td width="10%" class="TableHeading">Direction</td>
+					<td width="40%" class="TableHeading">Notes</td>
+				</tr>
+				<tr>
+					<td width="30%" class="TableRow" valign="top"><a href="EA105.htm">Wysłać notatki</a></td>
+					<td width="10%" class="TableRow" valign="top">Collaborate</td>
+					<td width="10%" class="TableRow" valign="top">Includes</td>
+					<td width="10%" class="TableRow" valign="top">To</td>
+					<td width="40%" class="TableRow" valign="top">&nbsp;</td>
+				</tr>
+				<tr>
+					<td width="30%" class="TableRow" valign="top"><a href="EA104.htm">Otrzymać  potwierdzenie przetworzenia</a></td>
+					<td width="10%" class="TableRow" valign="top">Collaborate</td>
+					<td width="10%" class="TableRow" valign="top">Includes</td>
+					<td width="10%" class="TableRow" valign="top">To</td>
+					<td width="40%" class="TableRow" valign="top">&nbsp;</td>
+				</tr>
+				<tr>
+					<td width="30%" class="TableRow" valign="top">FRE:004:Gugnowski Dąbkowski Cieśla Przekształcenie notatki analogowej</td>
+					<td width="10%" class="TableRow" valign="top">FunctionalRequirement</td>
+					<td width="10%" class="TableRow" valign="top">Realization</td>
+					<td width="10%" class="TableRow" valign="top">To</td>
+					<td width="40%" class="TableRow" valign="top">&nbsp;</td>
+				</tr>
+				<tr>
+					<td width="30%" class="TableRow" valign="top"><a href="EA103.htm">Sterować zachowaniem AI za pomocą tagów <NOTE></a></td>
+					<td width="10%" class="TableRow" valign="top">Collaborate</td>
+					<td width="10%" class="TableRow" valign="top">Extends</td>
+					<td width="10%" class="TableRow" valign="top">From</td>
+					<td width="40%" class="TableRow" valign="top">&nbsp;</td>
+				</tr>
+				<tr>
+					<td width="30%" class="TableRow" valign="top">FRE:007:Gugnowski Dąbkowski Cieśla W notatce musi być rozpoznana struktura tekstu.</td>
+					<td width="10%" class="TableRow" valign="top">FunctionalRequirement</td>
+					<td width="10%" class="TableRow" valign="top">Realization</td>
+					<td width="10%" class="TableRow" valign="top">To</td>
+					<td width="40%" class="TableRow" valign="top">&nbsp;</td>
+				</tr>
+
+			</table>
+		</div>
+	</div>
+ </div>
+ </td>
+				</tr>
+			</tbody>
+		</table>
+		
+</div>
+</body>
+</html>
+

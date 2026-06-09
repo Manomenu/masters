@@ -1,0 +1,13 @@
+[project]
+name = "system-rts-impact"
+version = "0.1.0"
+description = "Badanie wpływu systemu operacyjnego na komunikację w czasie rzeczywistym (MODBUS RTU)"
+requires-python = ">=3.11"
+dependencies = [
+    "pyserial>=3.5",
+    "numpy>=1.24",
+    "matplotlib>=3.7",
+]
+
+[dependency-groups]
+dev = []

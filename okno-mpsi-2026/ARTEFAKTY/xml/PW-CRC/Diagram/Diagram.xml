@@ -1,0 +1,21 @@
+<?xml  version='1.0' encoding='windows-1252' ?>
+<UMLProfile profiletype="uml2">
+	<Documentation id="5F14E905F8" name="PW-CRC" version="1.0" notes="PW-CRC"/>
+	<Content>
+		<Stereotypes>
+			<Stereotype name="Sesja CRC" alias="CLS075:Gugnowski D&#x105;bkowski Cie&#x15B;la" notes="" cx="0" cy="0" bgcolor="-1" fontcolor="-1" bordercolor="-1" borderwidth="-1" hideicon="0">
+				<AppliesTo>
+					<Apply type="Diagram_Sequence"/>
+				</AppliesTo>
+			</Stereotype>
+			<Stereotype name="Struktura dziedziny" alias="CLS073:Gugnowski D&#x105;bkowski Cie&#x15B;la" notes="" cx="0" cy="0" bgcolor="-1" fontcolor="-1" bordercolor="-1" borderwidth="-1" hideicon="0">
+				<AppliesTo>
+					<Apply type="Diagram_Logical"/>
+				</AppliesTo>
+			</Stereotype>
+		</Stereotypes>
+		<TaggedValueTypes/>
+		<ViewDefinitions/>
+		<Metamodel/>
+	</Content>
+</UMLProfile>

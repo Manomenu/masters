@@ -1,0 +1,391 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<title>Etap D</title>
+<link href="css/ea.css" rel="stylesheet" type="text/css" />
+<script>
+const guid_look = new Map([['8A3A597B-DB0A-80ED-9530-553743E941C4', 'EA1/EA1.htm'],
+['AFB4A991-6A6F-4CAF-BBE8-940EEE61B6E5', 'EA1/EA2.htm'],
+['C6D3BD98-B721-4382-9845-75A4EAD4E0DE', 'EA1/EA3.htm'],
+['A1AF4887-2028-448D-B4B9-B98924BA5319', 'EA1/EA4.htm'],
+['33E9B53A-86F7-4DBD-B795-C97B18D7979B', 'EA1/EA5.htm'],
+['88AC7D96-47CF-42C8-8325-AFEC1680F644', 'EA1/EA1/EA6.htm'],
+['FBFBEB9D-B856-49BC-AB46-C9857B0BC793', 'EA1/EA1/EA8.htm'],
+['AFB4A991-6A6F-4CAF-BBE8-940EEE61B6E5', 'EA1/EA1/EA10.htm'],
+['C431E12C-276D-4F60-AAF7-D624A5A680A1', 'EA1/EA1/EA11.htm'],
+['342BCB11-45EE-46FB-8D83-93255DF81211', 'EA1/EA1/EA12.htm'],
+['1723CBFB-FE1C-4B12-B3E4-9E586B6D356D', 'EA1/EA1/EA13.htm'],
+['C431E12C-276D-4F60-AAF7-D624A5A680A1', 'EA1/EA1/EA1/EA14.htm'],
+['C44C9771-135A-4B01-8D62-858D09170A07', 'EA1/EA1/EA1/EA15.htm'],
+['80A07AF5-C042-47AA-ABAD-B28FAF789717', 'EA1/EA1/EA1/EA16.htm'],
+['1BFDB699-FD17-43AC-A760-97310D27F672', 'EA1/EA1/EA1/EA1/EA17.htm'],
+['C44C9771-135A-4B01-8D62-858D09170A07', 'EA1/EA1/EA1/EA1/EA19.htm'],
+['9100B829-03A4-F23A-9AB5-8D75B93F3B10', 'EA1/EA1/EA1/EA1/EA20.htm'],
+['81E2DEDB-05C8-26B2-9251-0B4AC643A093', 'EA1/EA1/EA1/EA1/EA21.htm'],
+['9BF1D95E-2F05-647F-BB12-1FA8783B77C7', 'EA1/EA1/EA1/EA1/EA22.htm'],
+['A4356A7D-C590-0DF8-81A5-DAFEB8ABFCEE', 'EA1/EA1/EA1/EA1/EA23.htm'],
+['8D0FC976-1FD4-3927-93F2-A8FA082B1971', 'EA1/EA1/EA1/EA1/EA24.htm'],
+['9F2DA66C-7C86-30CA-9548-B1F6F642320B', 'EA1/EA1/EA1/EA1/EA25.htm'],
+['3578E90D-88F6-4934-B1F1-D862603900BA', 'EA1/EA1/EA1/EA2/EA26.htm'],
+['80A07AF5-C042-47AA-ABAD-B28FAF789717', 'EA1/EA1/EA1/EA2/EA28.htm'],
+['A383ADEF-1BC4-3939-BF74-9E274DB76EB1', 'EA1/EA1/EA1/EA2/EA29.htm'],
+['99A713C2-5160-3FB3-B1C2-F74CB1ABDEFD', 'EA1/EA1/EA1/EA2/EA30.htm'],
+['AD64C70B-5D29-EE1E-B3D3-5A35FB414730', 'EA1/EA1/EA1/EA2/EA31.htm'],
+['A2894520-DCC5-13A1-A07A-FCA10868C742', 'EA1/EA1/EA1/EA2/EA32.htm'],
+['908A1272-AEEF-1619-9C71-3FD64E977501', 'EA1/EA1/EA1/EA2/EA33.htm'],
+['842D0666-A9AA-DAA9-AE09-A6FD6D2EA429', 'EA1/EA1/EA1/EA2/EA34.htm'],
+['A73C4B0A-D5E6-0EDE-8CBD-2DD89273F05E', 'EA1/EA1/EA1/EA2/EA35.htm'],
+['8B25673B-BEA8-F012-8AD3-756E92CE4E3A', 'EA1/EA1/EA1/EA2/EA36.htm'],
+['342BCB11-45EE-46FB-8D83-93255DF81211', 'EA1/EA1/EA2/EA37.htm'],
+['ABEC231A-7076-43BD-9214-2C61CC88A775', 'EA1/EA1/EA2/EA38.htm'],
+['8A3A597B-DB0A-80ED-9105-56E1D3BA75C3', 'EA1/EA1/EA2/EA39.htm'],
+['E65DA501-DAEC-4756-9EC3-9DBF2B453D51', 'EA1/EA1/EA2/EA1/EA40.htm'],
+['ABEC231A-7076-43BD-9214-2C61CC88A775', 'EA1/EA1/EA2/EA1/EA42.htm'],
+['83B927A7-0D5D-437F-A3A9-C0DF48C0FDF1', 'EA1/EA1/EA2/EA1/EA43.htm'],
+['3A2CEFD0-BA6A-4163-B889-6F5B9B56E009', 'EA1/EA1/EA2/EA1/EA44.htm'],
+['D8C26C37-CE1B-4F77-82C5-D0B8C2C6B225', 'EA1/EA1/EA2/EA1/EA45.htm'],
+['1D6E28FF-60D0-4038-BCF9-2AE6A073970F', 'EA1/EA1/EA2/EA1/EA46.htm'],
+['459D5AE7-78A9-4C86-B848-BD95BDCA2035', 'EA1/EA1/EA2/EA1/EA47.htm'],
+['853285F9-0EC0-338D-8F5A-A6779546D4E9', 'EA1/EA1/EA2/EA2/EA48.htm'],
+['8A3A597B-DB0A-80ED-9105-56E1D3BA75C3', 'EA1/EA1/EA2/EA2/EA50.htm'],
+['A73A8A20-9999-4209-85BF-536DFEAC3E72', 'EA1/EA1/EA2/EA2/EA51.htm'],
+['00A16A65-819D-46E5-AFC0-CF44B1A95FCD', 'EA1/EA1/EA2/EA2/EA52.htm'],
+['FE1AB8ED-4267-4FB0-8979-F991AD6B6F7A', 'EA1/EA1/EA2/EA2/EA53.htm'],
+['4CAB4FFD-E4AB-49FD-978D-F20D889A13B3', 'EA1/EA1/EA2/EA2/EA54.htm'],
+['1723CBFB-FE1C-4B12-B3E4-9E586B6D356D', 'EA1/EA1/EA3/EA55.htm'],
+['8D159D6D-3939-4B33-BB00-168BED6B7BBE', 'EA1/EA1/EA3/EA56.htm'],
+['998C0161-14DC-4904-8EB2-56C78ED105DB', 'EA1/EA1/EA3/EA57.htm'],
+['CF04BD3A-F49B-4394-8F96-43754F344E47', 'EA1/EA1/EA3/EA1/EA58.htm'],
+['8D159D6D-3939-4B33-BB00-168BED6B7BBE', 'EA1/EA1/EA3/EA1/EA60.htm'],
+['ABC576C3-84B1-49D9-A45C-F71B266B95CD', 'EA1/EA1/EA3/EA1/EA61.htm'],
+['E258192C-3791-4BC4-B089-A7EC7E036458', 'EA1/EA1/EA3/EA1/EA62.htm'],
+['7E7BA3A0-C143-45FE-969D-5B9F8D279AD6', 'EA1/EA1/EA3/EA1/EA63.htm'],
+['9FBBD599-E319-426C-9A98-8AD7181B0EDF', 'EA1/EA1/EA3/EA1/EA64.htm'],
+['454AAFF6-9130-4205-885E-7B9EF617186E', 'EA1/EA1/EA3/EA2/EA65.htm'],
+['998C0161-14DC-4904-8EB2-56C78ED105DB', 'EA1/EA1/EA3/EA2/EA67.htm'],
+['AA793AE2-AF6F-494C-8EF4-4E66489DCB0F', 'EA1/EA1/EA3/EA2/EA68.htm'],
+['CC464214-C4A1-498B-86A7-61CE3E67EB8E', 'EA1/EA1/EA3/EA2/EA69.htm'],
+['EDF4058F-66E9-49D6-AE48-A1F1111A6DD3', 'EA1/EA1/EA3/EA2/EA70.htm'],
+['91E0626E-8762-4BB4-B99F-899A50B12EA2', 'EA1/EA1/EA3/EA2/EA71.htm'],
+['C6D3BD98-B721-4382-9845-75A4EAD4E0DE', 'EA1/EA2/EA72.htm'],
+['B2BCFD0A-F8F5-7757-AB95-65B1864EC60F', 'EA1/EA2/EA73.htm'],
+['910083A3-1EB6-9D22-924B-4A6B7BA31449', 'EA1/EA2/EA74.htm'],
+['31753424-0048-4DEC-9D1F-E71EFEB6EFAA', 'EA1/EA2/EA1/EA75.htm'],
+['42FAAC1A-6730-4A02-B215-CDAD7BC4A2BC', 'EA1/EA2/EA1/EA77.htm'],
+['E7CFF698-AE77-4DFC-A90F-607C804C1E80', 'EA1/EA2/EA1/EA79.htm'],
+['DF9E6AF2-496A-4C1D-92F4-E217A5661D20', 'EA1/EA2/EA1/EA81.htm'],
+['8D277E23-50E6-4CA0-8BED-6C428A90A56C', 'EA1/EA2/EA1/EA83.htm'],
+['1C3495A0-05AA-4D83-85ED-467E901E9964', 'EA1/EA2/EA1/EA85.htm'],
+['0EBFE0BB-28F3-4923-8EB0-C537CEFAB477', 'EA1/EA2/EA1/EA87.htm'],
+['27877526-81F6-4F52-8509-6BF573395D93', 'EA1/EA2/EA1/EA89.htm'],
+['8928A4C3-62E8-42A4-998C-4E2356BD3B51', 'EA1/EA2/EA1/EA91.htm'],
+['B2BCFD0A-F8F5-7757-AB95-65B1864EC60F', 'EA1/EA2/EA1/EA93.htm'],
+['92F49505-58B7-42DB-A75B-6E2AB4EAEAD2', 'EA1/EA2/EA1/EA94.htm'],
+['224E4D64-A41E-40EB-9621-6636627D88EB', 'EA1/EA2/EA1/EA95.htm'],
+['84E9AD7E-533A-47FE-B001-C3E3C564B6BF', 'EA1/EA2/EA1/EA96.htm'],
+['286C3BAD-277B-43AF-9936-B2B493727380', 'EA1/EA2/EA1/EA97.htm'],
+['BEA2AE44-4C8F-4E25-B283-67530E51112D', 'EA1/EA2/EA1/EA98.htm'],
+['258CE748-622F-461C-B592-2FADB489FE93', 'EA1/EA2/EA1/EA99.htm'],
+['E4C65C3E-978A-4EA2-A7C1-6CB02CEBFD3E', 'EA1/EA2/EA1/EA100.htm'],
+['817B4476-00B0-4F25-9455-28F243E5DB0C', 'EA1/EA2/EA1/EA101.htm'],
+['88F9F123-A07F-4DA6-AA42-2582E5A771DC', 'EA1/EA2/EA1/EA102.htm'],
+['B28AC8A6-CD74-D9C7-A881-B0A20A3E6E42', 'EA1/EA2/EA1/EA103.htm'],
+['8517CDF1-65BB-F941-99D8-C052F7CC79F3', 'EA1/EA2/EA1/EA104.htm'],
+['8D79D7BB-4E2F-0178-8F91-0524B914371C', 'EA1/EA2/EA1/EA105.htm'],
+['62969277-9F0B-42A9-A58A-840FC8A1E5D1', 'EA1/EA2/EA1/EA106.htm'],
+['2058F1EA-653D-4F32-9C30-EE5CAAE812AD', 'EA1/EA2/EA1/EA107.htm'],
+['3483C426-141A-44F0-B558-9634946B8056', 'EA1/EA2/EA1/EA108.htm'],
+['B725B5F3-7CBE-48AE-9497-3244C839ED75', 'EA1/EA2/EA1/EA109.htm'],
+['D3E3B6A7-44E7-42C8-AC71-0E2BBC60B877', 'EA1/EA2/EA2/EA110.htm'],
+['BA0F21E2-A8D3-409B-A589-A07BCDCB9346', 'EA1/EA2/EA2/EA112.htm'],
+['6D0D2DB6-D425-43D3-9FC7-3B94416FBF45', 'EA1/EA2/EA2/EA114.htm'],
+['9CC4585A-C759-4236-80C5-D1044B539691', 'EA1/EA2/EA2/EA116.htm'],
+['225AF104-3BE0-4DF1-8A4C-78688AF19A42', 'EA1/EA2/EA2/EA118.htm'],
+['2551055D-A37A-488C-9C40-086EDD5A627C', 'EA1/EA2/EA2/EA120.htm'],
+['7388ADE4-5247-4DBF-BC8F-016719257BDB', 'EA1/EA2/EA2/EA122.htm'],
+['02029AAA-5EF2-44D0-8DC2-B5A0F8575A11', 'EA1/EA2/EA2/EA124.htm'],
+['0A86DCA5-67B5-4E73-97D4-96046E6A9A46', 'EA1/EA2/EA2/EA126.htm'],
+['35CE9ABB-B5C7-482E-A9AC-BEC5EA21A616', 'EA1/EA2/EA2/EA128.htm'],
+['910083A3-1EB6-9D22-924B-4A6B7BA31449', 'EA1/EA2/EA2/EA130.htm'],
+['6EF57756-9AD9-4D33-81ED-EB610E73F005', 'EA1/EA2/EA2/EA131.htm'],
+['F2AF5575-F000-4BCE-A8F8-A7C1B3F25AA9', 'EA1/EA2/EA2/EA132.htm'],
+['EE924E76-A25D-4C09-A4F0-9984C6D8EB24', 'EA1/EA2/EA2/EA133.htm'],
+['709F26DA-10EC-4252-8994-7AEDE7AF1B9C', 'EA1/EA2/EA2/EA134.htm'],
+['A939EF30-15C3-4CB9-A287-D64B097FFA68', 'EA1/EA2/EA2/EA135.htm'],
+['2724382E-306E-472B-A90D-7B8D11F5D320', 'EA1/EA2/EA2/EA136.htm'],
+['68C84C17-EE1B-4662-9A24-BC90A068A18A', 'EA1/EA2/EA2/EA137.htm'],
+['4B6C89B3-3E68-4974-AA6E-8F1E79745803', 'EA1/EA2/EA2/EA138.htm'],
+['ED890DE1-47B2-474F-A55E-1F3371D7F6A1', 'EA1/EA2/EA2/EA139.htm'],
+['E7FEF01D-864F-4426-89C5-683A1C92248A', 'EA1/EA2/EA2/EA140.htm'],
+['955CC994-B1A6-DE43-81AE-4B2D9FD6102D', 'EA1/EA2/EA2/EA141.htm'],
+['ACD766E4-AB73-9750-9E5C-EDC8D7A3974C', 'EA1/EA2/EA2/EA142.htm'],
+['B40ADE53-1B11-A3CC-97DB-194AAFDDD1A6', 'EA1/EA2/EA2/EA143.htm'],
+['90C5391E-7718-CE60-A277-F3D5429F0CE8', 'EA1/EA2/EA2/EA144.htm'],
+['B36348D3-35D6-35D6-AEBC-6DFFC3F43F78', 'EA1/EA2/EA2/EA145.htm'],
+['1EBCD5CF-16EF-4314-84BB-080B0DEFC354', 'EA1/EA2/EA2/EA146.htm'],
+['0849ABC0-6A41-4A71-B4E5-4D8F63F21113', 'EA1/EA2/EA2/EA147.htm'],
+['24DE5097-A059-43CF-9BA8-70679C3AAF45', 'EA1/EA2/EA2/EA148.htm'],
+['AD0960F5-4978-49C4-B662-62734C2259CF', 'EA1/EA2/EA2/EA149.htm'],
+['D7763BB4-BB1D-48D0-93C1-04F86D655BA1', 'EA1/EA2/EA2/EA150.htm'],
+['A1AF4887-2028-448D-B4B9-B98924BA5319', 'EA1/EA3/EA151.htm'],
+['9AC78623-D431-4827-9BCD-029D2C3A679E', 'EA1/EA3/EA152.htm'],
+['AB19ED30-C69F-EA2E-9A6D-DCE8AFCAE42E', 'EA1/EA3/EA153.htm'],
+['AB19ED30-C69F-EA2E-901F-45CB8242A323', 'EA1/EA3/EA154.htm'],
+['9AC78623-D431-4827-9BCD-029D2C3A679E', 'EA1/EA3/EA1/EA155.htm'],
+['77254F8C-4B70-4BC2-B056-A7C626320B8E', 'EA1/EA3/EA1/EA156.htm'],
+['14A31250-D19F-46A1-B582-69AB758AB375', 'EA1/EA3/EA1/EA157.htm'],
+['8C8D1CCA-8693-33D6-8CF0-A07CD28E3F47', 'EA1/EA3/EA2/EA158.htm'],
+['AB19ED30-C69F-EA2E-9A6D-DCE8AFCAE42E', 'EA1/EA3/EA2/EA160.htm'],
+['52BBCD03-9D9C-42F4-9100-B82903A4F23A', 'EA1/EA3/EA2/EA161.htm'],
+['36CD2963-B269-40FB-81E2-DEDB05C826B2', 'EA1/EA3/EA2/EA162.htm'],
+['583BADCD-8F58-46FB-9BF1-D95E2F05647F', 'EA1/EA3/EA2/EA163.htm'],
+['D4B1A80B-7B53-4B71-A435-6A7DC5900DF8', 'EA1/EA3/EA2/EA164.htm'],
+['5AFF845A-0E9D-40FC-9A62-374D953ACBD5', 'EA1/EA3/EA2/EA165.htm'],
+['E0D9E86A-8029-4253-8D0F-C9761FD43927', 'EA1/EA3/EA2/EA166.htm'],
+['8310DDA1-928F-4ABC-9F2D-A66C7C8630CA', 'EA1/EA3/EA2/EA167.htm'],
+['8C8D1CCA-8693-33D6-9A06-F1C197E3BE75', 'EA1/EA3/EA3/EA168.htm'],
+['AB19ED30-C69F-EA2E-901F-45CB8242A323', 'EA1/EA3/EA3/EA170.htm'],
+['DE56941D-79B1-482A-A383-ADEF1BC43939', 'EA1/EA3/EA3/EA171.htm'],
+['3FF79405-DF40-495D-99A7-13C251603FB3', 'EA1/EA3/EA3/EA172.htm'],
+['F6EEC0AB-721C-4BA7-AD64-C70B5D29EE1E', 'EA1/EA3/EA3/EA173.htm'],
+['6E00DE65-49C5-4F73-A289-4520DCC513A1', 'EA1/EA3/EA3/EA174.htm'],
+['FA4A87D5-634E-49AF-908A-1272AEEF1619', 'EA1/EA3/EA3/EA175.htm'],
+['091F812E-84B4-4D9C-842D-0666A9AADAA9', 'EA1/EA3/EA3/EA176.htm'],
+['12F4D71D-EF75-432C-A504-7F9F8ABC42BF', 'EA1/EA3/EA3/EA177.htm'],
+['90CCBCE4-943C-481C-A73C-4B0AD5E60EDE', 'EA1/EA3/EA3/EA178.htm'],
+['72D4EED2-FBC6-419C-8B25-673BBEA8F012', 'EA1/EA3/EA3/EA179.htm'],
+['33E9B53A-86F7-4DBD-B795-C97B18D7979B', 'EA1/EA4/EA180.htm'],
+['F691BF6D-E0B9-4A60-AD96-908B1FA35F15', 'EA1/EA4/EA181.htm'],
+['565F4FB0-4443-4F8D-BB57-2BE3A04E6AE0', 'EA1/EA4/EA182.htm'],
+['3DDA9124-C4AD-4129-91EF-40A610FC7FDE', 'EA2/EA183.htm'],
+['7DF64733-124F-446A-8716-04D7B0CB5B3C', 'EA2/EA185.htm'],
+['52E564DB-0968-4822-86BC-F087482FC690', 'EA3/EA186.htm'],
+['A681FEB9-0D52-444A-8183-EB30901BCCEF', 'EA3/EA188.htm'],
+['7DC7069E-C406-4D48-B337-75A1E3B95D35', 'EA3/EA189.htm'],
+['F708C899-468D-4A92-9320-8061B2861AA1', 'EA3/EA190.htm'],
+['2E87C1A1-22BA-4A7C-A206-79DDFEB1E966', 'EA3/EA191.htm'],
+['0542A0FF-B487-4BB5-95F5-118078F12F2D', 'EA3/EA1/EA192.htm'],
+['F708C899-468D-4A92-9320-8061B2861AA1', 'EA3/EA1/EA194.htm'],
+['5A23D1EE-FC17-40A6-8CD7-701F6FE4741B', 'EA3/EA1/EA195.htm'],
+['E8AD569C-5B19-4110-90B7-B8F316EDB1B7', 'EA3/EA1/EA196.htm'],
+['CA844C92-AC09-46F8-BE5A-AA4ED5DB2226', 'EA3/EA1/EA197.htm'],
+['70A01DFF-4B57-41CE-975F-035F6C074BFF', 'EA3/EA1/EA198.htm'],
+]);
+
+		function switchProjectProperties()
+		{
+			if (document.getElementById("proj00").style.display == "none")
+			{
+				document.getElementById("proj00").style.display = "revert";
+				document.getElementById("proj01").style.display = "revert";
+				document.getElementById("proj02").style.display = "revert";
+				document.getElementById("proj03").style.display = "revert";
+				document.getElementById("proj04").style.display = "revert";
+				document.getElementById("proj05").style.display = "revert";
+			}
+			else
+			{
+				document.getElementById("proj00").style.display = "none";
+				document.getElementById("proj01").style.display = "none";
+				document.getElementById("proj02").style.display = "none";
+				document.getElementById("proj03").style.display = "none";
+				document.getElementById("proj04").style.display = "none";
+				document.getElementById("proj05").style.display = "none";
+			}
+		}
+
+		function switchAdvancedProperties()
+		{
+
+			if (document.getElementById("adv00").style.display == "none")
+			{
+				document.getElementById("adv00").style.display = "revert";
+				document.getElementById("adv01").style.display = "revert";
+			}
+			else
+			{
+				document.getElementById("adv00").style.display = "none";
+				document.getElementById("adv01").style.display = "none";
+			}
+		}
+
+		function getAnchor() {
+			var currentUrl = document.URL,
+			urlParts   = currentUrl.split('#');
+			return (urlParts.length > 1) ? urlParts[1] : null;
+		}
+
+		function initPage()
+		{
+			const queryString = window.location.search;
+			const urlParams = new URLSearchParams(queryString);
+			const guidlink = urlParams.get('guid');
+
+			if (guidlink != null)
+			{
+				var link = guidlink.toUpperCase();
+				var page = guid_look.get(link);
+
+				if (page != null)
+				{
+					var pageredir = page;
+					const anchor = getAnchor();
+					if (anchor != null)
+						pageredir += "#" + anchor;
+					window.location.replace("EARoot/" + pageredir);
+					return;
+				}
+			}
+
+			var divs = document.getElementsByClassName("ObjectDetailsNotes");
+			for (var j = 0; j < divs.length; j++)
+			{
+				var tmpStr = divs[j].innerHTML;
+				tmpStr = tmpStr.replace(/&gt;/g, ">");
+				tmpStr = tmpStr.replace(/&lt;/g, "<");
+
+				tmpStr = tmpStr.replace(/#gt;/g, "&gt;");
+				tmpStr = tmpStr.replace(/#lt;/g, "&lt;");
+
+				divs[j].innerHTML = tmpStr;
+			}
+
+			if (document.getElementById('TableGroup') != null)
+			{
+				toggleItem(document.getElementById('TableGroup').getElementsByTagName('li')[0].id.replace("Title", ""));
+			}
+
+		}
+		
+		document.addEventListener('DOMContentLoaded', () => {
+			const img = document.querySelector('.diagram_image img');
+			const mapAreas = document.querySelectorAll('area');
+			
+			if (img && mapAreas.length > 0) {
+				//Get original and rendered image dimensions
+				const originalWidth = img.naturalWidth;
+				const originalHeight = img.naturalHeight;
+				const renderedWidth = img.clientWidth || originalWidth; 
+				const renderedHeight = img.clientHeight || originalHeight; 
+				
+				//Calculate scaling factors
+				const scaleX = renderedWidth / originalWidth;
+				const scaleY = renderedHeight / originalHeight;
+				
+				//Adjust map area coordinates
+				mapAreas.forEach((area) => {
+				  const originalCoords = area.getAttribute('coords').split(',').map(Number);
+				  const scaledCoords = originalCoords.map((coord, index) =>
+					index % 2 === 0 ? coord * scaleX : coord * scaleY
+				  );
+				  area.setAttribute('coords', scaledCoords.join(','));
+				});
+			}
+		});
+</script>
+<style>
+
+</style>
+</head>
+<body onload="initPage();">
+<div class="section group" >
+
+		<div class="col span_2_of_2 header_frame">
+			<h1> Etap D </h1>
+			<img class="header_image" src="images/warsaw_university_of_technology_logo.jpg" align="right" alt="Header Image" />
+		</div>
+		<div class="col span_2_of_2 breadcrumb_frame">
+			<p></p>
+		</div>
+		
+		<table class="contentmaintable">
+			<!-- <tfoot>
+				<tr>
+					<td>foot1</td>
+					<td>foot2</td>
+				</tr>
+			</tfoot> -->
+			<tbody>
+				<tr>
+					<td class="indexcell">
+						<div class="projectBrowserTitle">Project: </div>
+						<ul>
+<li><img src="images/34.png" alt="Package"/> <a href="./EARoot/EA1/EA1.htm">Analiza systemu NOTES-AI</a></li>
+<li><img src="images/34.png" alt="Package"/> <a href="./EARoot/EA2/EA185.htm">Analysis View</a></li>
+<li><img src="images/31.png" alt="Package"/> <a href="./EARoot/EA3/EA188.htm">Domain Model</a></li>
+</ul>
+
+					</td>
+					<td class="contentcell">
+						<div class="welcome_message">
+						<h2>Welcome to your model</h2>
+						<p>To get started navigate through the model via the index on the left</p> 
+						</div>
+						<div class="PageBody">
+	<div class="diagram_image"> 
+<img src="./EARoot/EA1/EA1/EA9.png" usemap="#EA9" width="1480" height="845" border="0" />
+
+<MAP NAME="EA9">
+<area shape="rect" coords="785,237,860,330" href="./EARoot/EA1/EA1/EA1/EA2/EA36.htm" target="_self">
+<area shape="rect" coords="1359,677,1434,770" href="./EARoot/EA1/EA1/EA1/EA2/EA35.htm" target="_self">
+<area shape="rect" coords="785,15,860,108" href="./EARoot/EA1/EA1/EA1/EA2/EA33.htm" target="_self">
+<area shape="rect" coords="785,681,860,774" href="./EARoot/EA1/EA1/EA1/EA2/EA32.htm" target="_self">
+<area shape="rect" coords="785,459,860,552" href="./EARoot/EA1/EA1/EA1/EA2/EA31.htm" target="_self">
+<area shape="rect" coords="1359,456,1434,549" href="./EARoot/EA1/EA1/EA1/EA2/EA30.htm" target="_self">
+<area shape="rect" coords="1359,15,1434,108" href="./EARoot/EA1/EA1/EA1/EA2/EA29.htm" target="_self">
+<area shape="rect" coords="1359,236,1434,329" href="./EARoot/EA1/EA1/EA1/EA2/EA34.htm" target="_self">
+<area shape="rect" coords="465,56,540,149" href="./EARoot/EA1/EA1/EA3/EA2/EA71.htm" target="_self">
+<area shape="rect" coords="465,443,540,536" href="./EARoot/EA1/EA1/EA3/EA2/EA69.htm" target="_self">
+<area shape="rect" coords="465,249,540,342" href="./EARoot/EA1/EA1/EA3/EA2/EA68.htm" target="_self">
+<area shape="rect" coords="465,636,540,729" href="./EARoot/EA1/EA1/EA3/EA2/EA70.htm" target="_self">
+<area shape="rect" coords="99,648,174,741" href="./EARoot/EA1/EA1/EA2/EA1/EA45.htm" target="_self">
+<area shape="rect" coords="99,458,174,551" href="./EARoot/EA1/EA1/EA2/EA1/EA44.htm" target="_self">
+<area shape="rect" coords="99,267,174,360" href="./EARoot/EA1/EA1/EA2/EA1/EA43.htm" target="_self">
+<area shape="rect" coords="99,77,174,170" href="./EARoot/EA1/EA1/EA2/EA1/EA46.htm" target="_self">
+</MAP>
+ </div>
+	<div class="ObjectTitle">Klasy analityczne obszaru przekształcenia notatki : Class diagram</div>
+	<table border="0" cellpadding="0" cellspacing="0" class="ObjectDetails">
+		<tr>
+			<td width="15%" class="ObjectDetailsTopic">Created:</td>
+			<td width="85%" class="ObjectDetailsValue">19.03.2026 20:17:45</td>
+		</tr>
+		<tr>
+			<td width="15%" class="ObjectDetailsTopic">Modified:</td>
+			<td width="85%" class="ObjectDetailsValue">19.03.2026 20:27:09</td>
+		</tr>
+		<tr style="padding-top: 10px;">
+			<td width="15%" class="ObjectDetailsTopic"><button onclick="switchProjectProperties()"><img src="./images//plus03.gif" align="absmiddle" id="proj" /></button>Project:</td>
+			<td width="85%" class="ObjectDetailsValue"></td>			
+		</tr>
+		<tr id="proj00" style="display: none;">
+			<td width="15%" class="ObjectDetailsTopic" style="padding-left: 18px;">Author:</td>
+			<td width="85%" class="ObjectDetailsValue">Piotr Gugnowski, Adam Dąbkowski, Adrian Cieśla</td>
+		</tr>
+		<tr id="proj01" style="display: none;">
+			<td width="15%" class="ObjectDetailsTopic" style="padding-left: 18px;">Version:</td>
+			<td width="85%" class="ObjectDetailsValue">1.0</td>
+		</tr>
+		<tr>
+			<td width="15%" class="ObjectDetailsTopic"><button onclick="switchAdvancedProperties()"><img src="./images//plus03.gif" align="absmiddle" id="adv" /></button>Advanced:</td>
+			<td width="85%" class="ObjectDetailsValue"></td>			
+		</tr>
+		<tr id="adv00" style="display: none;">
+			<td width="15%" class="ObjectDetailsTopic" style="padding-left: 18px;">ID:</td>
+			<td width="85%" class="ObjectDetailsValue">{FBFBEB9D-B856-49bc-AB46-C9857B0BC793}</td>
+		</tr>
+	</table>
+	
+</div>
+
+
+					</td>
+				</tr>
+			</tbody>
+		</table>
+		
+
+</div>
+</body>
+</html>

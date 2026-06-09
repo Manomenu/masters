@@ -1,0 +1,5 @@
+tocTab[tocTab.length] = new Array("0.1.1.3.2:1", "", "Logika aplikacyjna", "EARoot/EA1/EA1/EA3/EA2/EA65.htm", "175.png", "85", "0", "", "Logical diagram0","{454AAFF6-9130-4205-885E-7B9EF617186E}");
+tocTab[tocTab.length] = new Array("0.1.1.3.2:2", "", "«control» Ster_WyślijPowiadomienie", "EARoot/EA1/EA1/EA3/EA2/EA68.htm", "5.png", "E601", "0", "", "Class0","{AA793AE2-AF6F-494c-8EF4-4E66489DCB0F}");
+tocTab[tocTab.length] = new Array("0.1.1.3.2:3", "", "«control» Ster_WyślijWiadomość", "EARoot/EA1/EA1/EA3/EA2/EA69.htm", "5.png", "E595", "0", "", "Class0","{CC464214-C4A1-498b-86A7-61CE3E67EB8E}");
+tocTab[tocTab.length] = new Array("0.1.1.3.2:4", "", "«control» Ster_ZapiszPlik", "EARoot/EA1/EA1/EA3/EA2/EA70.htm", "5.png", "E602", "0", "", "Class0","{EDF4058F-66E9-49d6-AE48-A1F1111A6DD3}");
+tocTab[tocTab.length] = new Array("0.1.1.3.2:5", "", "«control» Ster_ZapiszTagNOTE", "EARoot/EA1/EA1/EA3/EA2/EA71.htm", "5.png", "E603", "0", "", "Class0","{91E0626E-8762-4bb4-B99F-899A50B12EA2}");

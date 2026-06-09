@@ -1,0 +1,25 @@
+os_name  := os()
+compiler := if os_name == "windows" { "g++" }    else { "clang++" }
+output   := if os_name == "windows" { "modbus-crc.exe" } else { "modbus-crc" }
+runner   := if os_name == "windows" { "modbus-crc.exe" } else { "./modbus-crc" }
+cxxflags := "-std=c++17 -O3 -march=native -Wall -Wextra"
+
+default: build
+
+# Build for the current platform (macOS ARM or Windows)
+build:
+    {{compiler}} {{cxxflags}} -o {{output}} src/main.cpp
+    @echo "Built: {{output}}  [{{os_name}} / {{arch()}}]"
+
+# Build then run
+run: build
+    {{runner}}
+
+# Remove build artifacts
+[unix]
+clean:
+    rm -f modbus-crc modbus-crc.exe
+
+[windows]
+clean:
+    -del /f modbus-crc.exe

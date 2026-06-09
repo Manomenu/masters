@@ -1,0 +1,2 @@
+tocTab[tocTab.length] = new Array("0.1.1.2.1", "1", "Przekształcenie notatki", "EARoot/EA1/EA1/EA2/EA1/EA42.htm", "4.png", "", "", "{ABEC231A-7076-43bd-9214-2C61CC88A775}", "Package");
+tocTab[tocTab.length] = new Array("0.1.1.2.2", "1", "Administracja systemem", "EARoot/EA1/EA1/EA2/EA2/EA50.htm", "4.png", "", "", "{8A3A597B-DB0A-80ED-9105-56E1D3BA75C3}", "Package");

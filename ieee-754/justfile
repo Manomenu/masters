@@ -1,0 +1,39 @@
+os_name  := os()
+compiler := if os_name == "windows" { "g++" }    else { "clang++" }
+out_t2   := if os_name == "windows" { "task2_internal_to_ieee.exe" } else { "task2_internal_to_ieee" }
+out_t3   := if os_name == "windows" { "task3_ieee_to_internal.exe" } else { "task3_ieee_to_internal" }
+cxxflags := "-std=c++17 -O3 -march=native -Wall -Wextra" \
+          + if os_name == "windows" { " -static -static-libgcc -static-libstdc++" } \
+          else { "" }
+shared   := "src/shared.cpp"
+
+default: build
+
+# Kompilacja obu zadań
+build: build-task2 build-task3
+
+# Zadanie 5.2 — konwersja kodu wewnętrznego / liczby naturalnej na IEEE 754
+build-task2:
+    {{compiler}} {{cxxflags}} -o {{out_t2}} src/task2_internal_to_ieee.cpp {{shared}}
+    @echo "Built: {{out_t2}}  [{{os_name}} / {{arch()}}]"
+
+# Zadanie 5.3 — konwersja IEEE 754 na kod wewnętrzny
+build-task3:
+    {{compiler}} {{cxxflags}} -o {{out_t3}} src/task3_ieee_to_internal.cpp {{shared}}
+    @echo "Built: {{out_t3}}  [{{os_name}} / {{arch()}}]"
+
+# Uruchomienie
+run-task2: build-task2
+    ./{{out_t2}}
+
+run-task3: build-task3
+    ./{{out_t3}}
+
+# Usunięcie plików wykonywalnych
+[unix]
+clean:
+    rm -f task2_internal_to_ieee task3_ieee_to_internal
+
+[windows]
+clean:
+    -del /f task2_internal_to_ieee.exe task3_ieee_to_internal.exe

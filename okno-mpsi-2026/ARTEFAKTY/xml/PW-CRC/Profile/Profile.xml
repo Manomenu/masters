@@ -1,0 +1,40 @@
+<?xml  version='1.0' encoding='windows-1252' ?>
+<UMLProfile profiletype="uml2">
+	<Documentation id="40E54D5563" name="PW-CRC" version="1.0" notes="PW-CRC"/>
+	<Content>
+		<Stereotypes>
+			<Stereotype name="CRC" alias="CLS063:Gugnowski D&#x105;bkowski Cie&#x15B;la" notes="" cx="0" cy="0" bgcolor="-1" fontcolor="-1" bordercolor="-1" borderwidth="-1" hideicon="0">
+				<AppliesTo>
+					<Apply type="Class">
+						<Property name="isActive" value=""/>
+					</Apply>
+				</AppliesTo>
+			</Stereotype>
+			<Stereotype name="Komunikat" alias="CLS067:Gugnowski D&#x105;bkowski Cie&#x15B;la" notes="" cx="0" cy="0" bgcolor="-1" fontcolor="-1" bordercolor="-1" borderwidth="-1" hideicon="0">
+				<AppliesTo>
+					<Apply type="Operation">
+						<Property name="isOrdered" value=""/>
+						<Property name="isQuery" value="false"/>
+						<Property name="isUnique" value=""/>
+						<Property name="lower" value=""/>
+						<Property name="upper" value=""/>
+					</Apply>
+				</AppliesTo>
+			</Stereotype>
+			<Stereotype name="Odpowiedzialno&#x15B;&#x107;" alias="CLS065:Gugnowski D&#x105;bkowski Cie&#x15B;la" notes="" cx="0" cy="0" bgcolor="-1" fontcolor="-1" bordercolor="-1" borderwidth="-1" hideicon="0">
+				<AppliesTo>
+					<Apply type="Operation">
+						<Property name="isOrdered" value=""/>
+						<Property name="isQuery" value="false"/>
+						<Property name="isUnique" value=""/>
+						<Property name="lower" value=""/>
+						<Property name="upper" value=""/>
+					</Apply>
+				</AppliesTo>
+			</Stereotype>
+		</Stereotypes>
+		<TaggedValueTypes/>
+		<ViewDefinitions/>
+		<Metamodel/>
+	</Content>
+</UMLProfile>

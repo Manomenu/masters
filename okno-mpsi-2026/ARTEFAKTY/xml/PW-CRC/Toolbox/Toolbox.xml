@@ -1,0 +1,28 @@
+<?xml  version='1.0' encoding='windows-1252' ?>
+<UMLProfile profiletype="uml2">
+	<Documentation id="F8055BD6BD" name="PW-CRC" version="1.0" notes="PW-CRC"/>
+	<Content>
+		<Stereotypes>
+			<Stereotype name="Struktura" alias="CLS078:Gugnowski D&#x105;bkowski Cie&#x15B;la" notes="" cx="0" cy="0" bgcolor="-1" fontcolor="-1" bordercolor="-1" borderwidth="-1" hideicon="0">
+				<AppliesTo>
+					<Apply type="ToolboxPage"/>
+				</AppliesTo>
+				<TaggedValues>
+					<Tag name="PW-CRC::CRC(UML::Class)" type="" description="" unit="" values="" default="Karta CRC"/>
+					<Tag name="PW-CRC::Odpowiedzialno&#x15B;&#x107;(UML::Operation)" type="" description="" unit="" values="" default="Odpowiedzialno&#x15B;&#x107;"/>
+				</TaggedValues>
+			</Stereotype>
+			<Stereotype name="Zachowanie" alias="CLS079:Gugnowski D&#x105;bkowski Cie&#x15B;la" notes="" cx="0" cy="0" bgcolor="-1" fontcolor="-1" bordercolor="-1" borderwidth="-1" hideicon="0">
+				<AppliesTo>
+					<Apply type="ToolboxPage"/>
+				</AppliesTo>
+				<TaggedValues>
+					<Tag name="PW-CRC::Komunikat(UML::Operation)" type="" description="" unit="" values="" default="Komunikat"/>
+				</TaggedValues>
+			</Stereotype>
+		</Stereotypes>
+		<TaggedValueTypes/>
+		<ViewDefinitions/>
+		<Metamodel/>
+	</Content>
+</UMLProfile>

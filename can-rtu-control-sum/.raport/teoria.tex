@@ -1,0 +1,697 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[polish]{polski}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{float}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{array}
+\usepackage{multirow}
+
+\geometry{margin=2cm}
+
+\definecolor{codebg}{rgb}{0.97,0.97,0.97}
+
+\lstset{
+    basicstyle=\ttfamily\small,
+    backgroundcolor=\color{codebg},
+    frame=single,
+    framesep=4pt,
+    showstringspaces=false,
+}
+
+\title{Systemy czasu rzeczywistego, Projekt 4 — Tło teoretyczne}
+\author{Piotr Gugnowski, wydział EiTI, nr indeksu 320690}
+\date{Czerwiec 2026}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\maketitle
+
+% ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+\section*{Dodatek A — Tło teoretyczne}
+% ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection*{A.0 Słowniczek — co znaczą podstawowe pojęcia}
+
+\textbf{Magistrala} (\textit{bus}) — wspólna para przewodów łącząca wszystkie
+urządzenia w~sieci. Każdy sygnał jest widoczny przez wszystkich — jak tablica
+ogłoszeń, z~której każdy może czytać.
+
+\medskip
+\textbf{Węzeł} (\textit{node}) — jedno urządzenie podłączone do magistrali
+(czujnik, sterownik, komputer).
+
+\medskip
+\textbf{Ramka} (\textit{frame}) — jedna paczka danych. Poza właściwymi danymi
+zawiera nagłówek (numer wiadomości, ile jest danych), sumę kontrolną i~inne pola.
+Jak koperta pocztowa: prócz listu jest adres, znaczek itp.
+
+\medskip
+\textbf{Stany recessive i~dominant.}
+Magistrala CAN ma w~każdej chwili jeden z~dwóch stanów:
+\begin{itemize}
+    \item \textit{Recessive} (z~łac.\ cofający się) = logiczne~1 — stan
+          \emph{bierny}: żadne urządzenie nic nie robi, magistrala
+          „odpoczywa" na napięciu $\approx$2,5\,V na obu przewodach.
+    \item \textit{Dominant} (z~łac.\ panujący) = logiczne~0 — stan
+          \emph{aktywny}: co najmniej jedno urządzenie aktywnie steruje
+          napięciami na przewodach.
+\end{itemize}
+\textbf{Zasada nadrzędna:} jeden dominant bierze górę nad wszystkimi
+recessive. Jeśli urządzenie A wysyła dominant (0) jednocześnie gdy B wysyła
+recessive (1), na magistrali widać 0. Jak głośny krzyk zagłuszający szept.
+
+\medskip
+\textbf{Sygnałowanie różnicowe — skąd nazwa?}
+Zwykły kabel cyfrowy przesyła napięcie jednego przewodu względem masy:
+0\,V to zero, 3,3\,V to jedynka. Problem: każdy impuls elektromagnetyczny
+(od silnika, telefonu, błyskawicy) bezpośrednio zmienia to napięcie.
+
+CAN używa \emph{dwóch} przewodów: CAN\_H (High) i~CAN\_L (Low).
+Informacja jest zakodowana w~\textbf{różnicy} napięć między nimi:
+
+\begin{center}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Stan} & CAN\_H & CAN\_L & Różnica H$-$L \\
+\midrule
+\textit{recessive} (1) & $\approx 2{,}5$\,V & $\approx 2{,}5$\,V & $\approx 0$\,V \\
+\textit{dominant}  (0) & $\approx 3{,}5$\,V & $\approx 1{,}5$\,V & $\approx 2$\,V \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Zakłócenie uderza jednakowo w~oba przewody biegnące obok siebie — podnosi
+napięcie na obu o~tę samą wartość, więc różnica H$-$L pozostaje niezmieniona.
+Stąd nazwa: \textbf{różnicowe} — liczymy różnicę, nie wartość bezwzględną.
+
+\medskip
+\textbf{Ciągnięcie napięcia.}
+W~stanie recessive nikt nic nie robi: rezystory zamontowane na końcach kabla
+(rezystory terminacyjne) utrzymują oba przewody pasywnie na $\approx$2,5\,V.
+W~stanie dominant układ scalony (transceiver — nadajnik/odbiornik CAN)
+włącza wewnętrzne tranzystory, które:
+\begin{itemize}
+    \item \textbf{ciągną CAN\_H w~górę} — ku napięciu zasilania ($\approx$3,5\,V),
+    \item \textbf{ciągną CAN\_L w~dół} — ku masie ($\approx$1,5\,V).
+\end{itemize}
+„Ciągnięcie" to standardowy termin elektroniczny: tranzystor musi dostarczyć
+prąd, żeby wymusić napięcie wbrew rezystorom — jak ciągnięcie liny wbrew
+sprężynie.
+
+\medskip
+\textbf{Arbitracja — kto nadaje pierwszy?}
+CAN to sieć bez żadnego nadrzędnego koordynatora: każde urządzenie może zacząć
+nadawać w~dowolnej chwili. Gdy dwa węzły zaczną jednocześnie — kolizja.
+
+CAN rozwiązuje ją automatycznie: każde nadające urządzenie \emph{słucha}
+magistrali podczas własnej transmisji i~porównuje to co wysyła z~tym co widzi.
+Numer ID wiadomości jest wysyłany bit po bicie od najstarszego.
+Jeśli urządzenie wysłało 1 (recessive), ale na magistrali widzi 0 (dominant) —
+znaczy to, że inne urządzenie wysyła tam 0, czyli ma niższy numer ID.
+Urządzenie z~wyższym ID milknie i~czeka. Wygrywa ten z~niższym numerem ID
+— i~nie traci przy tym żadnych danych, bo dominanty wygrywają bez zniszczenia
+ramki. Stąd: \textbf{niższy numer ID = wyższy priorytet}.
+
+\medskip
+\textbf{Bit stuffing (wstawianie bitów synchronizujących).}
+Odbiornik nie ma osobnego kabla zegarowego. Synchronizuje swój wewnętrzny zegar
+obserwując \emph{zmiany} stanu na magistrali — każde przejście $0\to1$ lub
+$1\to0$ jest jak uderzenie metronomu. Problem: przy długim ciągu identycznych
+bitów (np.\ 10 jedynek z~rzędu) przez cały ten czas nie ma żadnej zmiany
+i~odbiornik może „zgubić rytm".
+
+Rozwiązanie: nadajnik automatycznie \textbf{wstawia jeden odwrócony bit po
+każdych 5~bitach tej samej wartości}. Odbiornik zna tę zasadę i~usuwa te
+dodatkowe bity. Takie bity pomocnicze to \textbf{bity stuffujące}.
+
+\medskip
+\textbf{CRC} (\textit{Cyclic Redundancy Check} — cykliczna suma kontrolna).
+Matematyczna metoda wykrywania przekłamań. Nadajnik oblicza 15-bitową liczbę
+kontrolną ze wszystkich bitów wiadomości i~dołącza ją na końcu. Odbiornik
+oblicza tę samą liczbę ze \emph{odebranych} bitów i~porównuje — jeśli różne,
+gdzieś nastąpił błąd. Szczegóły w~A.5.
+
+\medskip
+\textbf{Skróty pól ramki}: SOF, EOF, IFS, ACK, DLC, SRR, IDE, RTR —
+każde wyjaśnione przy tabeli w~A.2.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection*{A.1 Sieć CAN — podstawy}
+
+CAN (\textit{Controller Area Network}) to standard komunikacyjny opracowany przez
+firmę Bosch w~1986~roku, pierwotnie na potrzeby motoryzacji. Dziś stosowany jest
+również w~automatyce przemysłowej, medycynie i~robotyce.
+
+\textbf{Kluczowe właściwości:}
+\begin{itemize}
+    \item \textbf{Każdy może nadawać w~dowolnej chwili} — nie ma żadnego
+          centralnego koordynatora. Konflikty przy jednoczesnym nadawaniu
+          rozstrzyga arbitracja (patrz A.0): wygrywa wiadomość z~niższym
+          numerem ID, bez straty danych.
+    \item \textbf{Odporność na zakłócenia elektromagnetyczne} — dzięki
+          sygnałowaniu różnicowemu (dwa przewody CAN\_H i~CAN\_L;
+          szczegóły w~A.0).
+    \item \textbf{Dwa stany magistrali:} \textit{dominant} (logiczne~0,
+          aktywnie sterowane napięcia) i~\textit{recessive} (logiczne~1,
+          stan bierny). Jeden dominant zawsze wygrywa nad recessive
+          (szczegóły w~A.0).
+    \item Prędkość: do 1\,Mb/s (klasyczny CAN), do 8\,Mb/s (CAN~FD).
+\end{itemize}
+
+\textbf{Priorytety:} numer ID wiadomości decyduje o~priorytecie.
+Niższy numer ID = więcej zer (dominantów) na początku identyfikatora =
+wygrywa arbitrację. Wiadomości krytyczne (np.\ czujnik poduszki powietrznej)
+dostają niskie numery ID i~zawsze trafiają na magistralę jako pierwsze.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection*{A.2 Struktura rozszerzonej ramki CAN (CAN~2.0B)}
+
+CAN~2.0 definiuje dwa formaty ramek — różnią się długością numeru ID:
+\begin{itemize}
+    \item \textbf{Standardowy} (CAN~2.0A) — 11-bitowy numer ID
+          (do 2032 różnych typów wiadomości),
+    \item \textbf{Rozszerzony} (CAN~2.0B) — 29-bitowy numer ID
+          (ponad 532~miliony typów wiadomości).
+\end{itemize}
+
+Zadanie 4.3 dotyczy ramki rozszerzonej z~8~bajtami danych.
+Każde \textbf{pole} to wydzielony fragment ramki o~ustalonej liczbie bitów
+i~ściśle określonej roli:
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{llrp{6.5cm}}
+\toprule
+\textbf{Pole} & \textbf{Podpole} & \textbf{Bitów} & \textbf{Co to jest} \\
+\midrule
+SOF & & 1 & \textit{Start of Frame} — jeden bit dominant (0) otwierający ramkę.
+            Magistrala jest normalnie recessive (1); nagłe~0 budzi wszystkich
+            odbiorców: „zaraz przyjdzie wiadomość". \\
+\midrule
+\multirow{5}{*}{Arbitration}
+ & Base ID [28:18] & 11 & Starsze 11 bitów 29-bitowego numeru ID wiadomości. \\
+ & SRR & 1 & \textit{Substitute Remote Request} — zawsze recessive; techniczny
+             bit zgodności ze starszym formatem 11-bitowym, bez znaczenia
+             merytorycznego. \\
+ & IDE & 1 & \textit{Identifier Extension} — wartość recessive (1) mówi
+             odbiornikowi: „to jest ramka rozszerzona (29-bitowy ID),
+             nie standardowa (11-bitowy ID)". \\
+ & Extension ID [17:0] & 18 & Młodsze 18 bitów 29-bitowego numeru ID. \\
+ & RTR & 1 & \textit{Remote Transmission Request} — gdy ustawiony na~1,
+             ramka jest \emph{prośbą} o~dane od innego węzła, nie ich
+             wysłaniem. Tu zawsze~0 (wysyłamy dane, nie prosimy). \\
+\midrule
+\multirow{3}{*}{Control}
+ & r1 & 1 & Bit zarezerwowany dla przyszłych wersji standardu; zawsze 0. \\
+ & r0 & 1 & Drugi bit zarezerwowany; zawsze 0. \\
+ & DLC [3:0] & 4 & \textit{Data Length Code} — liczba (0–8) mówiąca,
+                    ile bajtów właściwych danych zawiera pole Data. \\
+\midrule
+Data & & 64 & Właściwe dane: 8~bajtów $\times$ 8~bitów = 64~bity. \\
+\midrule
+\multirow{2}{*}{CRC}
+ & CRC sequence & 15 & 15-bitowa suma kontrolna obliczona z~wszystkich
+                       wcześniejszych pól. Odbiornik liczy tę samą sumę
+                       i~porównuje — niezgodność oznacza błąd transmisji. \\
+ & CRC delimiter & 1 & Jeden bit recessive (1) oddzielający sumę kontrolną
+                       od potwierdzenia odbioru — jak spacja między słowami. \\
+\midrule
+\multirow{2}{*}{ACK}
+ & ACK slot & 1 & Potwierdzenie odbioru: nadajnik wysyła tu recessive (1),
+                  ale \emph{każdy odbiorca, który poprawnie odebrał ramkę},
+                  nadpisuje to dominant (0). Jeśli nadajnik widzi na magistrali~0
+                  — wie, że ktoś odebrał wiadomość poprawnie. \\
+ & ACK delimiter & 1 & Jeden bit recessive (1) kończący pole ACK. \\
+\midrule
+EOF & & 7 & \textit{End of Frame} — 7 bitów recessive (samych jedynek)
+            oznaczających koniec ramki. \\
+\midrule
+IFS & & 3 & \textit{Interframe Space} — obowiązkowe 3 bity przerwy między
+            ramkami, dające wszystkim węzłom czas na przetworzenie właśnie
+            odebranej wiadomości zanim następna się pojawi. \\
+\bottomrule
+\end{tabular}
+\caption{Pola rozszerzonej ramki danych CAN~2.0B przy 8~bajtach danych.}
+\end{table}
+
+\textbf{Łączna liczba bitów} dla DLC = 8 (8~bajtów danych):
+
+\begin{align*}
+L_{\text{stały}} &= \underbrace{1}_{\text{SOF}}
+                 + \underbrace{(11+1+1+18+1)}_{\text{Arbitration}=32}
+                 + \underbrace{(1+1+4)}_{\text{Control}=6}
+                 + \underbrace{64}_{\text{Data}}
+                 + \underbrace{(15+1)}_{\text{CRC}=16}
+                 + \underbrace{(1+1)}_{\text{ACK}=2}
+                 + \underbrace{7}_{\text{EOF}}
+                 + \underbrace{3}_{\text{IFS}} \\
+                 &= 1 + 32 + 6 + 64 + 16 + 2 + 7 + 3 = \mathbf{131\ \text{bitów}}
+\end{align*}
+
+Do tej liczby dochodzą jeszcze \textbf{bity stuffujące} (patrz A.3).
+Bit stuffing stosuje się do regionu: SOF + Arbitration + Control + Data +
+sekwencja CRC (bez separatora CRC i~dalszych pól):
+
+\begin{equation}
+N_{\text{region stuffingu}} = 1 + 32 + 6 + 64 + 15 = \mathbf{118\ \text{bitów}}
+\end{equation}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection*{A.3 Technika bit stuffing — zasada i~zastosowanie}
+
+\textbf{Dlaczego w~ogóle potrzebny jest bit stuffing?}
+
+Odbiornik nie ma osobnego kabla z~sygnałem zegarowym. Synchronizuje swój
+wewnętrzny zegar obserwując \emph{zmiany} stanu na magistrali — każde
+przejście $0\to1$ lub $1\to0$ jest jak uderzenie metronomu. Wyobraź sobie
+odczytywanie Morse'a ze słuchu: jeśli przez długi czas nie słyszysz żadnej
+zmiany, gubisz rachubę. Jeśli dane zawierają 6 lub więcej identycznych bitów
+z~rzędu (np.\ sześć jedynek), odbiornik może przesunąć swoje taktowanie
+i~błędnie zinterpretować kolejne bity.
+
+\textbf{Zasada:}
+
+Po każdych \textbf{5~bitach tej samej wartości} nadajnik automatycznie
+wstawia jeden bit o~\emph{przeciwnej} wartości. Ten dodatkowy bit nie niesie
+żadnych danych — służy tylko do podtrzymania synchronizacji. Odbiornik zna
+tę zasadę i~usuwa co szósty bit, jeśli poprzedzały go pięć identycznych.
+Takie bity pomocnicze to \textbf{bity stuffujące}.
+
+\textbf{Przykład:}
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+Dane do wysłania & \texttt{1 1 1 1 1 0 0 0 0 0 1 1} \\
+Na magistrali (po wstawieniu) & \texttt{1 1 1 1 1 \textbf{[0]} 0 0 0 0 0 \textbf{[1]} 1 1} \\
+\bottomrule
+\end{tabular}
+\end{center}
+Dodane bity zaznaczono nawiasami $[\,]$. Odbiornik je usuwa i~odtwarza
+oryginalne dane.
+
+\textbf{Gdzie bit stuffing obowiązuje?}
+\begin{itemize}
+    \item \textbf{Tak} (118~bitów łącznie): SOF, pole Arbitration, pole
+          Control, pole Data, sekwencja CRC.
+    \item \textbf{Nie}: separator CRC, pole ACK, EOF, IFS — te pola mają
+          z~góry ustalone stałe wartości, więc odbiornik nie musi liczyć
+          przejść, bo wie czego się spodziewać.
+\end{itemize}
+
+\textbf{Ile bitów stuffujących może dojść maksymalnie?}
+
+W~najgorszym przypadku co~5 bitów wymusza wstawienie jednego stuffującego.
+Dla regionu 118~bitów:
+
+\begin{equation}
+\text{Max.\ bitów stuffujących} = \left\lfloor \frac{118}{5} \right\rfloor = \mathbf{23}
+\end{equation}
+
+\textbf{Minimum} wynosi 0 — gdy dane są naprzemianne (\texttt{10101010\ldots})
+i~nigdzie nie pojawia się 5~identycznych bitów z~rzędu.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection*{A.4 Identyfikatory CAN i~ograniczenia specyfikacji}
+
+W~sieci CAN wiadomości nie mają adresata — każda ramka wysłana na magistralę
+jest widoczna przez wszystkie węzły. Każdy węzeł sam decyduje, czy dana
+wiadomość go dotyczy, na podstawie \textbf{numeru ID}. Węzeł konfiguruje
+swój kontroler CAN tak, aby reagował tylko na wybrane numery ID (analogia:
+stacja radiowa — każde radio słyszy wszystkie częstotliwości, ale strojysz
+tylko jedną).
+
+\textbf{Ile różnych numerów ID istnieje?}
+\begin{itemize}
+    \item Ramka standardowa (11~bitów na numer ID): $2^{11} = 2048$ kombinacji.
+    \item Ramka rozszerzona (29~bitów na numer ID): $2^{29} = 536\,870\,912$ kombinacji.
+\end{itemize}
+
+\textbf{Ograniczenie:} identyfikatory, których \emph{pierwsze 7~bitów} to
+wszystkie jedynki (1111111...), są \textbf{zarezerwowane i~zakazane}.
+Powód: taka kombinacja wygląda identycznie jak specjalny sygnał błędu
+(\textit{passive error flag} — 6 recessive) albo jak pole IFS (pauza między
+ramkami), co mogłoby zmylić odbiorniki.
+
+\begin{table}[H]
+\centering
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Format} & \textbf{Bity ID} & \textbf{Zakazane ID} & \textbf{Dostępne ID} \\
+\midrule
+Standardowy & 11 & $2^{4} = 16$ & $2048 - 16 = \mathbf{2032}$ \\
+Rozszerzony & 29 & $2^{22} = 4\,194\,304$ & $536\,870\,912 - 4\,194\,304 = \mathbf{532\,676\,608}$ \\
+\bottomrule
+\end{tabular}
+\caption{Rzeczywista liczba dostępnych identyfikatorów w~sieci CAN.}
+\end{table}
+
+W~praktyce ograniczenie to jest nieistotne: typowa sieć przemysłowa używa
+kilkudziesięciu do kilkuset różnych typów wiadomości — ułamek procenta
+dostępnej przestrzeni.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection*{A.5 Suma kontrolna CRC-15/CAN — teoria i~gwarancje}
+
+\subsubsection*{Idea: jak CRC wykrywa błędy?}
+
+Wyobraź sobie, że wysyłasz liczbę i~chcesz sprawdzić, czy dotarła bez zmian.
+Możesz z~góry obliczyć resztę z~dzielenia tej liczby przez jakąś ustaloną
+stałą i~dołączyć ją jako „podpis". Odbiorca dzieli odebraną liczbę przez tę
+samą stałą — jeśli reszta się zgadza, liczba prawdopodobnie jest nienaruszona.
+Jeśli nie — gdzieś nastąpiła zmiana.
+
+CRC działa dokładnie tak, ale operuje na bitach i~używa specjalnej arytmetyki
+binarnej (bez przeniesień przy dodawaniu — patrz B.1). Wynikiem jest
+15-bitowa reszta z~dzielenia — to właśnie suma kontrolna CRC-15.
+
+Formalnie: ciąg bitów wiadomości traktowany jest jak wielomian (każdy bit to
+współczynnik przy kolejnej potędze $x$). Nadajnik liczy resztę z~dzielenia
+wielomianu wiadomości $M(x)$ przez ustalony wielomian generujący $G(x)$:
+\[
+R(x) = M(x) \cdot x^{15} \bmod G(x)
+\]
+i~dołącza resztę $R(x)$ do ramki. Odbiornik sprawdza, czy odebrany strumień
+jest podzielny przez $G(x)$ bez reszty — niezerowa reszta = błąd.
+
+\subsubsection*{Wielomian generujący CRC-15/CAN}
+
+Wielomian generujący to matematyczna stała — rodzaj „dzielnika". Jego wybór
+decyduje o~tym, jakie błędy CRC jest w~stanie wykryć. Dla CAN jest to:
+
+\begin{equation}
+G(x) = x^{15} + x^{14} + x^{10} + x^8 + x^7 + x^4 + x^3 + 1
+\end{equation}
+
+W~algorytmie z~zadania ta stała pojawia się jako liczba szesnastkowa \texttt{0x4599}
+(15~bitów, bez najstarszego bitu $x^{15}$, który jest niejawny):
+\[
+G_{\text{hex}} = \texttt{0x4599}
+= \underbrace{0100\ 0101\ 1001\ 1001}_{\text{bity 14\ldots0}}
+\]
+
+\subsubsection*{Co CRC-15/CAN gwarantuje?}
+
+Wielomian był starannie wybrany przez Boscha pod kątem zakłóceń typowych dla
+okablowania samochodowego. Gwarantuje wykrycie:
+\begin{itemize}
+    \item \textbf{każdego błędu 1-bitowego} — jeden przekłamany bit,
+    \item \textbf{każdego błędu 2-bitowego} — dowolne dwa przekłamane bity,
+    \item \textbf{każdej serii błędów} o~długości do 15~bitów z~rzędu,
+    \item \textbf{każdej nieparzystej liczby przekłamanych bitów}.
+\end{itemize}
+Prawdopodobieństwo, że jakiś błąd \emph{nie} zostanie wykryty, wynosi
+$\approx 3{,}1 \times 10^{-5}$ — czyli mniej niż 1 na 32~000 błędnych ramek
+„prześlizgnie się" niezauważone.
+
+\subsubsection*{Algorytm LFSR z~zadania}
+
+Algorytm z~treści zadania to sprzętowa implementacja tego dzielenia, zwana
+LFSR (\textit{Linear Feedback Shift Register} — liniowy rejestr przesuwający
+ze sprzężeniem zwrotnym). Szczegółowy opis z~analogią taśmy produkcyjnej
+znajduje się w~B.2. Zmienne algorytmu:
+
+\begin{center}
+\begin{tabular}{ll}
+\toprule
+\textbf{Zmienna} & \textbf{Co przechowuje} \\
+\midrule
+\texttt{CRC\_RG(14:0)} & 15-bitowy rejestr — bieżąca reszta dzielenia (bit 14 = najstarszy) \\
+\texttt{NXTBIT} & kolejny bit wejściowy (0 lub 1) \\
+\texttt{CRCNXT} & bit pomocniczy = XOR bitu wejściowego z~najstarszym bitem rejestru \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{enumerate}
+    \item \texttt{CRC\_RG = 0} (inicjalizacja — rejestr wyzerowany)
+    \item Dla każdego bitu wejściowego \texttt{NXTBIT} (od SOF do końca Data):
+    \begin{enumerate}[label=\alph*)]
+        \item $\texttt{CRCNXT} = \texttt{NXTBIT} \oplus \texttt{CRC\_RG}(14)$
+        \item przesuń rejestr w~lewo o~1:
+              $\texttt{CRC\_RG}(14:1) \leftarrow \texttt{CRC\_RG}(13:0)$;
+              $\texttt{CRC\_RG}(0) = 0$
+        \item jeśli $\texttt{CRCNXT} = 1$: wykonaj XOR rejestru z~\texttt{0x4599}
+    \end{enumerate}
+    \item Wynik: zawartość \texttt{CRC\_RG} po przetworzeniu wszystkich bitów.
+\end{enumerate}
+
+
+% ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+\section*{Dodatek B — Wymagana wiedza i~kluczowe aspekty przy implementacji}
+% ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection*{B.1 Arytmetyka binarna bez przeniesień — dlaczego XOR jest sercem CRC}
+
+Normalna arytmetyka: $1 + 1 = 2$ (przeniesienie do następnej cyfry).
+CRC używa arytmetyki binarnej \textbf{bez przeniesień}: $1 + 1 = 0$.
+To jest dokładnie operacja XOR (exclusive or — „albo jedno, albo drugie,
+nie oba naraz"):
+\[
+0 \oplus 0 = 0,\quad 1 \oplus 0 = 1,\quad 1 \oplus 1 = 0
+\]
+
+Ta arytmetyka nosi nazwę \textbf{GF(2)} (ciało Galois rzędu~2).
+Kluczowe właściwości: dodawanie i~odejmowanie to ta sama operacja (XOR),
+nie ma przeniesień, nie ma ujemnych liczb. Mnożenie to AND ($1 \cdot 1 = 1$,
+$1 \cdot 0 = 0$).
+
+Ciąg bitów można interpretować jako wielomian: ciąg \texttt{1011} to
+$x^3 + x + 1$ (jedynki na pozycjach 3, 1, 0). Dzielenie takiego wielomianu
+przez inny w~arytmetyce GF(2) daje resztę — to właśnie CRC.
+
+Dwie kluczowe obserwacje dla implementacji:
+\begin{itemize}
+    \item Przesunięcie bitów rejestru w~lewo o~1 (\texttt{<<\,1}) to mnożenie
+          wielomianu przez $x$.
+    \item XOR rejestru z~wielomianem generującym to odjęcie tego wielomianu
+          (w~GF(2) dodawanie = odejmowanie, więc XOR wystarcza do obu operacji).
+\end{itemize}
+Dlatego algorytm LFSR (przesuń w~lewo + warunkowo XOR z~generatorem) to
+krok po kroku implementacja dzielenia wielomianów w~GF(2).
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection*{B.2 Rejestr LFSR — jak algorytm z~zadania działa w~praktyce}
+
+\textbf{LFSR} (\textit{Linear Feedback Shift Register} — liniowy rejestr
+przesuwający ze sprzężeniem zwrotnym) można wyobrazić sobie jako taśmę
+produkcyjną z~15~stanowiskami. W~każdym takcie algorytmu:
+\begin{enumerate}[label=\arabic*.]
+    \item Wszystko przesuwa się o~jedno miejsce w~lewo — bit ze stanowiska~0
+          trafia na~1, z~1 na~2, ..., z~13 na~14. Bit ze stanowiska~14
+          \emph{wylatuje} z~taśmy.
+    \item Na zwolnione stanowisko~0 wstawiamy~0.
+    \item Sprawdzamy, czy wylatujący bit~14 jest \emph{różny} (XOR) od bitu
+          wejściowego \texttt{NXTBIT}. Jeśli tak — wykonujemy XOR całego
+          rejestru z~\texttt{0x4599} (to jest właśnie „sprzężenie zwrotne"
+          z~nazwy LFSR).
+\end{enumerate}
+
+Po przetworzeniu wszystkich 118~bitów wejścia zawartość rejestru to gotowa
+suma kontrolna CRC-15.
+
+Kluczowe szczegóły w~C++:
+\begin{itemize}
+    \item Rejestr to zmienna \texttt{uint16\_t} (16-bitowa liczba bez znaku).
+          Używamy tylko 15~dolnych bitów — po każdym przesunięciu maskujemy:
+          \texttt{rejestr \&= 0x7FFF} (zeruje bit~15, gdyby się pojawił po
+          przesunięciu).
+    \item Wejście wczytujemy jako znaki \texttt{'0'}/\texttt{'1'}.
+          Szybka konwersja: \texttt{znak \& 1} daje wartość bitu — znaki
+          \texttt{'0'} (kod ASCII 48) i~\texttt{'1'} (kod ASCII 49) różnią
+          się tylko ostatnim bitem.
+\end{itemize}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection*{B.3 Strategie optymalizacji algorytmu}
+
+\subsubsection*{B.3.1 Eliminacja instrukcji warunkowej (kod bez skoków)}
+
+Wewnętrzna pętla algorytmu zawiera \texttt{if}: gdy \texttt{CRCNXT}~=~1,
+wykonaj XOR z~wielomianem; gdy~0, pomiń. Nowoczesne procesory działają
+potokowo — zaczynają wykonywać następną instrukcję, zanim skończyły poprzednią.
+Gdy napotykają \texttt{if}, muszą \emph{zgadnąć} który wariant będzie
+potrzebny i~zacząć go wykonywać z~wyprzedzeniem. Przy losowych danych wejściowych
+zgadują 50/50 — połowa zgadnięć jest błędna. Każdy błąd kosztuje 5–15~cykli
+procesora na „cofnięcie" pracy i~ponowne wykonanie właściwej gałęzi.
+Zjawisko to nosi nazwę \textit{branch misprediction} (błędne przewidywanie
+gałęzi).
+
+Rozwiązanie: zastąpić \texttt{if} operacją arytmetyczną dającą ten sam wynik
+bez żadnego skoku:
+\begin{itemize}
+    \item \textbf{Mnożenie:} \texttt{CRCNXT * 0x4599} — daje \texttt{0x4599}
+          gdy \texttt{CRCNXT}~=~1 i~\texttt{0} gdy \texttt{CRCNXT}~=~0.
+    \item \textbf{Maska bitowa:} negacja \texttt{-CRCNXT} — daje
+          \texttt{0xFFFF} gdy \texttt{CRCNXT}~=~1 i~\texttt{0x0000} gdy~=~0;
+          XOR z~tą maską i~wielomianem zastępuje \texttt{if}.
+\end{itemize}
+Przy fladze \texttt{-O3} kompilator często sam wykrywa ten wzorzec i~generuje
+kod bezskokowy.
+
+\subsubsection*{B.3.2 Tablica przeglądowa (zamieniamy 8~kroków w~1)}
+
+Algorytm w~wersji podstawowej przetwarza wejście \textbf{bit po bicie} —
+96~iteracji pętli dla 96~bitów. Można go przyspieszyć 8-krotnie, przetwarzając
+\textbf{bajt po bajcie} — 12~iteracji dla 96~bitów.
+
+Idea: przed pętlą główną, raz na zawsze, oblicz co stanie się z~rejestrem po
+przetworzeniu \emph{każdego} możliwego bajtu. Jest ich tylko $2^8 = 256$.
+Zapisz wyniki w~tablicy 256~elementów. W~pętli głównej zamiast przetwarzać
+8~bitów osobno — jedno spojrzenie do tablicy daje gotowy wynik.
+
+Tablica ma rozmiar $256 \times 2$\,B = 512\,B, co mieści się w~całości
+w~pamięci podręcznej L1 procesora (32–64\,kB). Po kilku pierwszych iteracjach
+cała tablica jest już w~L1 — każdy odczyt trwa 1–4~cykli zamiast 100+~cykli
+odczytu z~RAM.
+
+Dzięki słowu kluczowemu \texttt{constexpr} tablica jest wypełniana podczas
+\emph{kompilacji}, a~nie podczas uruchamiania programu — zero kosztu
+inicjalizacji w~czasie uruchomienia.
+
+\subsubsection*{B.3.3 Flagi kompilatora}
+
+Kompilacja z~\texttt{-O3 -march=native} zleca kompilatorowi agresywną
+optymalizację:
+\begin{itemize}
+    \item \textbf{Rozwijanie pętli} (\textit{loop unrolling}) — zamiast
+          pętli z~12~lub~96 krokami kompilator generuje osobne instrukcje
+          dla każdej iteracji, eliminując narzut skoków powrotnych.
+    \item \textbf{Wbudowanie funkcji} (\textit{inlining}) — kompilator wkleja
+          ciało funkcji CRC w~miejsce wywołania, eliminując narzut wywołania.
+    \item \textbf{Instrukcje SIMD} — na Apple Silicon (NEON) i~x86-64 (AVX2)
+          specjalne instrukcje operują na wielu danych jednocześnie.
+\end{itemize}
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection*{B.4 Pomiar czasu i~integralność benchmarku}
+
+\subsubsection*{B.4.1 Mierzenie czasu}
+
+Do pomiaru czasu w~C++ służy \texttt{std::chrono::high\_resolution\_clock}
+z~nagłówka \texttt{<chrono>}. Zegar ten ma rozdzielczość rzędu nanosekund
+na macOS i~Linux. Wzorzec użycia: zapisz czas startowy przed pętlą, czas
+końcowy po pętli, odejmij i~przelicz na żądaną jednostkę (\texttt{milliseconds},
+\texttt{nanoseconds} itp.) przez \texttt{duration\_cast}.
+Dla wiarygodnych wyników powtórzeń $n$ powinno być co najmniej $10^6$ —
+przy mniejszych wartościach zmierzony czas jest zdominowany przez szum
+samego pomiaru zegara, a~nie przez rzeczywisty czas algorytmu.
+
+\subsubsection*{B.4.2 Pułapka: kompilator może usunąć całą pętlę benchmarku}
+
+Przy \texttt{-O3} kompilator analizuje kod i~może stwierdzić: „wywoływana
+jest $n$~razy ta sama funkcja z~tym samym wejściem — wynik się nie zmienia,
+więc obliczę go raz i~zastąpię całą pętlę jednym wywołaniem". Benchmark
+pokazałby wtedy czas jednej iteracji niezależnie od wartości $n$ — zupełnie
+błędny pomiar.
+
+Dwa zabezpieczenia, które razem uniemożliwiają tę optymalizację:
+\begin{itemize}
+    \item \textbf{Zmienna \texttt{volatile}} — zapisanie wyniku CRC do zmiennej
+          \texttt{volatile} jest przez standard C++ traktowane jako „widoczny
+          efekt uboczny": kompilator nie może usunąć kodu, który do niej
+          prowadzi, ani wynieść obliczeń poza pętlę.
+    \item \textbf{\texttt{\_\_attribute\_\_((noinline))}} na funkcji CRC —
+          blokuje wbudowanie (inlining) funkcji do miejsca wywołania.
+          Kompilator nie „widzi" wtedy wnętrza funkcji i~nie może udowodnić,
+          że wynik jest zawsze taki sam.
+\end{itemize}
+Oba mechanizmy stosujemy jednocześnie jako niezależne zabezpieczenia —
+jedno może nie wystarczyć przy bardzo agresywnym optymalizatorze.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection*{B.5 Wyznaczanie $T_{\min}$ i~$T_{\max}$ — metoda obliczeniowa (zadanie 4.3)}
+
+\subsubsection*{Parametry bazowe}
+
+Przy prędkości 1\,Mb/s każdy bit trwa $T_b = 1\,\mu$s. Całkowity czas ramki
+to liczba bitów pomnożona przez $T_b$.
+
+Stała liczba bitów ramki (bez bitów stuffujących), z~tabeli w~A.2:
+
+\begin{align*}
+L_{\text{stały}} &= 1 + 32 + 6 + 64 + 16 + 2 + 7 + 3 = 131\ \text{bitów}
+\end{align*}
+
+Region objęty bit stuffingiem (patrz A.3):
+\begin{align*}
+N_{\text{fill}} &= 1 + 32 + 6 + 64 + 15 = 118\ \text{bitów}
+\end{align*}
+
+\subsubsection*{Najkrótszy czas — zero bitów stuffujących}
+
+Żaden bit stuffujący nie zostanie dodany, gdy w~regionie 118~bitów nigdzie
+nie pojawi się 5~identycznych bitów z~rzędu. Warunek ten spełniają dane
+naprzemianne:
+\begin{itemize}
+    \item Dane (8~bajtów): \texttt{0x55 0x55 ...} (\texttt{0x55} =
+          \texttt{01010101} — ciągłe przeskakiwanie 0 i~1)
+    \item Identyfikator 29-bitowy: musi mieć naprzemienne bity
+          (postaci \texttt{01010\ldots}), tak aby złożenie ID, pól Control
+          i~wynikowego CRC nie tworzyło serii 5~identycznych na granicach pól
+\end{itemize}
+
+\begin{align*}
+L_{\min} &= L_{\text{stały}} + 0 = \mathbf{131\ \text{bitów}} \\
+T_{\min} &= 131 \cdot 1\,\mu\text{s} = \mathbf{131\ \mu\text{s}}
+\end{align*}
+
+Współczynnik efektywności — jaki procent czasu transmisji stanowią właściwe
+dane (64~bity), a~jaki to nagłówki, sumy kontrolne i~inne pola ramki:
+\begin{equation}
+\eta_{\max} = \frac{64}{131} \approx \mathbf{48{,}9\%}
+\end{equation}
+
+\subsubsection*{Najdłuższy czas — maksimum bitów stuffujących (23)}
+
+Maksymalne stuffowanie pojawia się, gdy co~5 bitów w~regionie wymusza
+wstawienie bitu — wzorzec \texttt{11111\,00000\,11111\,00000}\ldots
+Dla 118~bitów wejścia: $\lfloor 118 / 5 \rfloor = 23$~bity stuffujące.
+
+Przykład danych generujących dużo stuffowania: same zera w~polu danych
+\texttt{0x00} $\times$ 8 to 64~bity~\texttt{0} z~rzędu, co samo w~sobie daje
+$\lfloor 64/5 \rfloor = 12$~bitów stuffujących. Odpowiedni dobór ID i~wynikowa
+suma kontrolna CRC mogą łącznie dać pełne~23.
+
+\textbf{Uwaga:} wartość CRC jest obliczana automatycznie z~ID i~danych —
+nie można jej wybrać dowolnie. Znalezienie kombinacji dającej dokładnie 23~bity
+stuffujące wymaga iteracyjnego sprawdzania kandydatów.
+
+\begin{align*}
+L_{\max} &= L_{\text{stały}} + 23 = 131 + 23 = \mathbf{154\ \text{bitów}} \\
+T_{\max} &= 154 \cdot T_b = \mathbf{154\ \mu\text{s}}
+\end{align*}
+
+Współczynnik efektywności dla najdłuższej ramki:
+\begin{equation}
+\eta_{\min} = \frac{64}{154} \approx \mathbf{41{,}6\%}
+\end{equation}
+
+\subsubsection*{Podsumowanie zadania 4.3}
+
+\begin{center}
+\begin{tabular}{lrrrr}
+\toprule
+\textbf{Scenariusz} & \textbf{Bity stałe} & \textbf{Bity stuffuj.} & \textbf{Bity całk.} & $\bm{\eta}$ \\
+\midrule
+Najkrótsza ramka & 131 & 0  & 131 & 48,9\% \\
+Najdłuższa ramka & 131 & 23 & 154 & 41,6\% \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Przy 1\,Mb/s: $T_{\min} = 131\,\mu$s, $T_{\max} = 154\,\mu$s.
+
+\end{document}

@@ -1,0 +1,39 @@
+Projekt 5 — IEEE 754
+Piotr Gugnowski, nr indeksu 320690
+
+=== PLIKI ===
+
+README.md
+  Instrukcja budowania i użycia obu programów.
+
+justfile
+  Skrypt budowania (narzędzie just). Komendy:
+    just build        — kompiluje oba programy
+    just build-task2  — kompiluje tylko task2
+    just build-task3  — kompiluje tylko task3
+    just clean        — usuwa pliki wykonywalne
+
+sys_czas_rzecz_proj5_piotr_gugnowski_320690.pdf
+  Raport projektu.
+
+task2_internal_to_ieee.exe
+  Zadanie 5.2: konwersja kodu wewnętrznego (NKB) → IEEE 754 (hex).
+  Wejście:  32-bitowy ciąg binarny (kod binarny naturalny)
+  Wyjście:  wzorzec bitowy IEEE 754 w postaci szesnastkowej
+
+task3_ieee_to_internal.exe
+  Zadanie 5.3: konwersja IEEE 754 (hex) → kod wewnętrzny (hex).
+  Wejście:  32-bitowa wartość IEEE 754 w postaci szesnastkowej (np. 0x41100000)
+  Wyjście:  wzorzec bitowy kodu wewnętrznego w postaci szesnastkowej
+
+=== KATALOG src/ ===
+
+src/shared.h
+src/shared.cpp
+  Funkcje wspólne: konwersje bitowe, wyświetlanie, parsowanie wejścia.
+
+src/task2_internal_to_ieee.cpp
+  Punkt wejścia (main) dla zadania 5.2.
+
+src/task3_ieee_to_internal.cpp
+  Punkt wejścia (main) dla zadania 5.3.

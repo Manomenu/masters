@@ -1,0 +1,196 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[polish]{polski}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{geometry}
+\usepackage{enumitem}
+
+\geometry{margin=2cm}
+
+\title{Systemy czasu rzeczywistego, Projekt 5 -- Baza teoretyczna}
+\author{Piotr Gugnowski, wydział EiTI, nr indeksu 320690}
+\date{Czerwiec 2026}
+
+\pagestyle{empty}
+
+\begin{document}
+
+\maketitle
+
+% ===============================================================================
+\section*{A.1: Zmiennoprzecinkowa reprezentacja liczb binarnych}
+% ===============================================================================
+
+Każdą niezerową liczbę rzeczywistą można zapisać w~\textbf{postaci znormalizowanej}:
+\[
+  x = (-1)^S \times 1{,}M \times 2^E
+\]
+gdzie:
+\begin{itemize}
+  \item $S \in \{0, 1\}$: bit znaku ($0$ = dodatnia, $1$ = ujemna),
+  \item $1{,}M$: mantysa znormalizowana; część całkowita wynosi zawsze~1
+        (tzw.\ \textit{implicit leading bit} lub \textit{hidden bit}),
+  \item $E$: wykładnik całkowity (może być ujemny).
+\end{itemize}
+
+Mantysa $M$ to część ułamkowa: $M = \sum_{k=1}^{p} b_k \cdot 2^{-k}$,
+gdzie $p$ to liczba bitów precyzji.
+
+\medskip
+\noindent\textbf{Intuicja.}
+Zapis znormalizowany to po prostu przesunięcie przecinka binarnego tak,
+aby przed nim stała dokładnie jedna cyfra \texttt{1}.
+Wykładnik $E$ mówi o~ile pozycji i~w~którą stronę przesunięto przecinek
+(ujemny $E$ -- w~lewo, dodatni -- w~prawo).
+Mantysa $M$ to bity stojące \emph{za} tym przecinkiem -- cyfry po części całkowitej.
+
+Przykład krok po kroku dla liczby~$9$:
+\begin{enumerate}
+  \item Zapisujemy $9$ binarnie: $9 = 1001_2$.
+  \item Przesuwamy przecinek o~3~miejsca w~lewo, żeby zostało $1{,}\ldots$:
+        $9 = 1{,}001_2 \times 2^3$.
+  \item Stąd $E = 3$, a $M = 001\underbrace{00\cdots0}_{20}$ (23~bity łącznie).
+  \item Sprawdzenie: $1{,}001_2 = 1 + 0{\cdot}2^{-1} + 0{\cdot}2^{-2} + 1{\cdot}2^{-3}
+        = 1 + \tfrac{1}{8} = 1{,}125$;\quad
+        $1{,}125 \times 2^3 = 1{,}125 \times 8 = 9$. $\checkmark$
+\end{enumerate}
+
+% ===============================================================================
+\section*{A.2: Standard IEEE~754 single precision (32-bit)}
+% ===============================================================================
+
+\begin{center}
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Bit 31} & \textbf{Bity 30--23} & \textbf{Bity 22--0} \\
+\hline
+znak $S$ & wykładnik ze stałą $E_b$ (8 bitów) & mantysa $M$ (23 bity) \\
+\hline
+\end{tabular}
+\end{center}
+
+Wykładnik przechowywany jest z~\textbf{nadmiarem (biasem) 127}:
+$E_b = E_{\text{actual}} + 127$, co pozwala zapisać ujemne wykładniki
+bez bitu znaku. Zarezerwowane wartości $E_b$:
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+$E_b$ & $M$ & Znaczenie \\
+\midrule
+$1\ldots254$ & dowolna & liczba znormalizowana: $(-1)^S \times (1{+}M) \times 2^{E_b - 127}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Zakres liczb znormalizowanych dodatnich:
+$\bigl[2^{-126},\ (2 - 2^{-23}) \cdot 2^{127}\bigr]
+\approx \bigl[1{,}18 \times 10^{-38},\ 3{,}40 \times 10^{38}\bigr]$.
+
+% ===============================================================================
+\section*{A.3: Kod "wewnętrzny"}
+% ===============================================================================
+
+\begin{center}
+\begin{tabular}{|c|c|c|c|}
+\hline
+\textbf{Bit 31} & \textbf{Bity 30--24} & \textbf{Bit 23} & \textbf{Bity 22--0} \\
+\hline
+"1" (jawny bit wiodący) & wykładnik $E$ bez stałej (7 bitów) & "0" (padding) & mantysa $M$ (23 bity) \\
+\hline
+\end{tabular}
+\end{center}
+
+Wartość liczby:
+\[
+  x = (1 + M \cdot 2^{-23}) \times 2^E
+  \qquad E \in [0,\,127],\quad M \in [0,\,2^{23}-1]
+\]
+
+\medskip
+\noindent\textbf{Co oznacza każde pole w~praktyce:}
+\begin{itemize}
+  \item \textbf{Bit~31 = 1 (jedynka wiodąca):} w~IEEE~754 bit wiodący mantysy
+        ($1{,}M$) jest \emph{niejawny} -- procesor zakłada, że tam jest \texttt{1},
+        ale jej nie zapisuje. Kod wewnętrzny zapisuje ją \emph{jawnie},
+        więc bit~31 zawsze wynosi~\texttt{1} dla liczb niezerowych.
+  \item \textbf{Bity 30--24 -- wykładnik $E$:} mówi przez jaką potęgę dwójki
+        mnożymy mantysę. Dla $9 = 1{,}001_2 \times 2^3$ jest $E = 3$.
+        W~IEEE~754 wykładnik jest przesunięty o~127, tutaj jest zapisany wprost.
+  \item \textbf{Bit~23 -- padding (wypełniacz):} jest zawsze \texttt{0},
+        nie niesie żadnej informacji. Wynika z~rozkładu pól: 1~bit wiodący
+        + 7~bitów wykładnika = 8~bitów zajmuje bity 31--24,
+        a~mantysa zajmuje bity 22--0 (23~bity).
+        Bit~23 zostaje pomiędzy nimi jako martwa strefa.
+  \item \textbf{Bity 22--0 -- mantysa $M$:} cyfry za binarnym przecinkiem,
+        identyczne jak w~IEEE~754. Dla $9$: $M = 001\underbrace{00\cdots0}_{20}$.
+\end{itemize}
+
+Zero kodowane jest jako \texttt{0x00000000}.
+Format nie obsługuje liczb ujemnych ani ułamków mniejszych od~1.
+
+Uzasadnienie projektowe:
+\begin{itemize}
+  \item \textbf{Brak stałej wykładnika}: porównanie dwóch liczb przez
+        porównanie słów całkowitoliczbowych; mnożenie i~dodawanie wykładników
+        bez korekcji o~bias.
+  \item \textbf{Jawny bit wiodący}: brak specjalnego przypadku dla zera
+        mantysy; dekoder nie musi niejawnie dodawać~1.
+  \item Obydwa uproszczenia skracają czas realizacji operacji arytmetycznych
+        w~systemach czasu rzeczywistego.
+\end{itemize}
+
+% ===============================================================================
+\section*{A.4: Wzajemna konwersja obu formatów}
+% ===============================================================================
+
+Ponieważ oba formaty przechowują tę samą znormalizowaną postać $1{,}M \times 2^E$,
+a~mantysa (bity~22:0) jest identyczna, jedyną różnicą jest kodowanie wykładnika.
+
+\medskip
+\noindent\textbf{Kod wewnętrzny $\to$ IEEE~754:}
+\[
+  E_b = E + 127, \quad S = 0, \quad M_{\text{IEEE}} = M_{\text{wew}}
+\]
+\[
+  \text{IEEE} = (E_b \ll 23) \mid M
+\]
+
+\noindent\textbf{IEEE~754 $\to$ kod wewnętrzny} (tylko dla $S=0$, $E_b \in [127, 254]$):
+\[
+  E = E_b - 127, \quad \text{bit~31} = 1, \quad M_{\text{wew}} = M_{\text{IEEE}}
+\]
+\[
+  \text{wew} = \texttt{0x80000000} \mid (E \ll 24) \mid M
+\]
+
+Warunki konieczne dla konwersji IEEE~754 $\to$ kod wewnętrzny:
+\begin{itemize}
+  \item $S = 0$ (liczba nieujemna),
+  \item $E_b \notin \{0, 255\}$ (liczba znormalizowana, nie Inf/NaN),
+  \item $E_b \geq 127$ (wartość $\geq 1{,}0$, bo $E = E_b - 127 \geq 0$),
+  \item $E_b \leq 254$ (wykładnik $E \leq 127$, co wynika z~7-bitowego pola).
+\end{itemize}
+
+% ===============================================================================
+\section*{A.5: Kod binarny naturalny a reprezentacja liczb naturalnych}
+% ===============================================================================
+
+Kod binarny naturalny (ang.\ \textit{natural binary code}) to standardowy
+zapis pozycyjny przy podstawie~2: liczba $N = \sum_{k=0}^{n-1} b_k \cdot 2^k$.
+W~odróżnieniu od kodu Graya czy BCD, kolejne liczby różnią się dowolną liczbą bitów.
+
+Każda liczba naturalna $N \geq 1$ ma jednoznaczną znormalizowaną postać
+zmiennoprzecinkową:
+\[
+  N = 1{,}f \times 2^E, \qquad E = \lfloor \log_2 N \rfloor
+\]
+Mantysa ułamkowa $M = (N - 2^E) \cdot 2^{23-E}$ (przy $E \leq 23$).
+Dla $E > 23$ część ułamkowa jest ucinana: reprezentacja traci precyzję
+(dokładnie jak w~IEEE~754 single).
+
+\end{document}

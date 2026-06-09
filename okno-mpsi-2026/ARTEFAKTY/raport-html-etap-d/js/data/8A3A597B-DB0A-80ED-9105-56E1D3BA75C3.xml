@@ -1,0 +1,5 @@
+tocTab[tocTab.length] = new Array("0.1.1.2.2:1", "", "Interfejsy", "EARoot/EA1/EA1/EA2/EA2/EA48.htm", "175.png", "84", "0", "", "Logical diagram0","{853285F9-0EC0-338D-8F5A-A6779546D4E9}");
+tocTab[tocTab.length] = new Array("0.1.1.2.2:2", "", "«boundary» DiscrodApi_ZaakceptujToken", "EARoot/EA1/EA1/EA2/EA2/EA51.htm", "5.png", "E598", "0", "", "Class0","{A73A8A20-9999-4209-85BF-536DFEAC3E72}");
+tocTab[tocTab.length] = new Array("0.1.1.2.2:3", "", "«boundary» FormularzAdmin_DodajUżytkownika", "EARoot/EA1/EA1/EA2/EA2/EA52.htm", "5.png", "E597", "0", "", "Class0","{00A16A65-819D-46e5-AFC0-CF44B1A95FCD}");
+tocTab[tocTab.length] = new Array("0.1.1.2.2:4", "", "«boundary» ObsidianCLI_UstawScieżkę", "EARoot/EA1/EA1/EA2/EA2/EA53.htm", "5.png", "E599", "0", "", "Class0","{FE1AB8ED-4267-4fb0-8979-F991AD6B6F7A}");
+tocTab[tocTab.length] = new Array("0.1.1.2.2:5", "", "«boundary» OllamaCLI_UstawModel", "EARoot/EA1/EA1/EA2/EA2/EA54.htm", "5.png", "E600", "0", "", "Class0","{4CAB4FFD-E4AB-49fd-978D-F20D889A13B3}");

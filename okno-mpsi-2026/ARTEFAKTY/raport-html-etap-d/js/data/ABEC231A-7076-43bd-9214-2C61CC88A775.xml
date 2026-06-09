@@ -1,0 +1,6 @@
+tocTab[tocTab.length] = new Array("0.1.1.2.1:1", "", "Interfejsy", "EARoot/EA1/EA1/EA2/EA1/EA40.htm", "175.png", "83", "0", "", "Logical diagram0","{E65DA501-DAEC-4756-9EC3-9DBF2B453D51}");
+tocTab[tocTab.length] = new Array("0.1.1.2.1:2", "", "«boundary» DiscordAPI_WyślijPowiadomienie", "EARoot/EA1/EA1/EA2/EA1/EA43.htm", "5.png", "E590", "0", "", "Class0","{83B927A7-0D5D-437f-A3A9-C0DF48C0FDF1}");
+tocTab[tocTab.length] = new Array("0.1.1.2.1:3", "", "«boundary» DiscordApi_WyślijWiadomość", "EARoot/EA1/EA1/EA2/EA1/EA44.htm", "5.png", "E591", "0", "", "Class0","{3A2CEFD0-BA6A-4163-B889-6F5B9B56E009}");
+tocTab[tocTab.length] = new Array("0.1.1.2.1:4", "", "«boundary» ObsydianCLI_ZapiszPlik", "EARoot/EA1/EA1/EA2/EA1/EA45.htm", "5.png", "E589", "0", "", "Class0","{D8C26C37-CE1B-4f77-82C5-D0B8C2C6B225}");
+tocTab[tocTab.length] = new Array("0.1.1.2.1:5", "", "«boundary» Papier_ZapiszTagNOTE", "EARoot/EA1/EA1/EA2/EA1/EA46.htm", "5.png", "E592", "0", "", "Class0","{1D6E28FF-60D0-4038-BCF9-2AE6A073970F}");
+tocTab[tocTab.length] = new Array("0.1.1.2.1:6", "", "Typ powiadomienia", "EARoot/EA1/EA1/EA2/EA1/EA47.htm", "247.png", "E593", "0", "", "Enumeration0","{459D5AE7-78A9-4c86-B848-BD95BDCA2035}");

@@ -1,0 +1,3 @@
+tocTab[tocTab.length] = new Array("0.1.3.1", "1", "raport walidacji", "EARoot/EA1/EA3/EA1/EA155.htm", "4.png", "", "", "{9AC78623-D431-4827-9BCD-029D2C3A679E}", "Package");
+tocTab[tocTab.length] = new Array("0.1.3.2", "1", "Administracja systemem", "EARoot/EA1/EA3/EA2/EA160.htm", "4.png", "", "", "{AB19ED30-C69F-EA2E-9A6D-DCE8AFCAE42E}", "Package");
+tocTab[tocTab.length] = new Array("0.1.3.3", "1", "Przekształcanie notatki analogowej", "EARoot/EA1/EA3/EA3/EA170.htm", "4.png", "", "", "{AB19ED30-C69F-EA2E-901F-45CB8242A323}", "Package");

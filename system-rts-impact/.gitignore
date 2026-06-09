@@ -1,0 +1,27 @@
+# Środowisko wirtualne Python (uv)
+.venv/
+
+# Wykresy generowane przez program (ignoruj w katalogu głównym)
+histogram_*.png
+# ...ale śledź te w .raport/ (używane w README)
+!.raport/histogram_*.png
+
+# Cache Pythona
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Pliki IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# macOS
+.DS_Store
+
+# Dane tymczasowe / wyniki pomiarów (jeśli zapiszesz surowe dane)
+*.csv
+*.npy
+*.npz

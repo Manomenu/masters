@@ -1,0 +1,8 @@
+tocTab[tocTab.length] = new Array("0.1.3.2:1", "", "Administracja systemem", "EARoot/EA1/EA3/EA2/EA158.htm", "175.png", "73", "0", "", "Logical diagram0","{8C8D1CCA-8693-33D6-8CF0-A07CD28E3F47}");
+tocTab[tocTab.length] = new Array("0.1.3.2:2", "", "«Type» Discord Bot", "EARoot/EA1/EA3/EA2/EA161.htm", "5.png", "E491", "0", "", "Class0","{52BBCD03-9D9C-42f4-9100-B82903A4F23A}");
+tocTab[tocTab.length] = new Array("0.1.3.2:3", "", "«Type» Discord serwer", "EARoot/EA1/EA3/EA2/EA162.htm", "5.png", "E498", "0", "", "Class0","{36CD2963-B269-40fb-81E2-DEDB05C826B2}");
+tocTab[tocTab.length] = new Array("0.1.3.2:4", "", "«Type» Lokalizacja zapisu notatek Markdown", "EARoot/EA1/EA3/EA2/EA163.htm", "5.png", "E493", "0", "", "Class0","{583BADCD-8F58-46fb-9BF1-D95E2F05647F}");
+tocTab[tocTab.length] = new Array("0.1.3.2:5", "", "«Type» Obsidian", "EARoot/EA1/EA3/EA2/EA164.htm", "5.png", "E499", "0", "", "Class0","{D4B1A80B-7B53-4b71-A435-6A7DC5900DF8}");
+tocTab[tocTab.length] = new Array("0.1.3.2:6", "", "Typ serwera", "EARoot/EA1/EA3/EA2/EA165.htm", "247.png", "E501", "0", "", "Enumeration0","{5AFF845A-0E9D-40fc-9A62-374D953ACBD5}");
+tocTab[tocTab.length] = new Array("0.1.3.2:7", "", "«Type» Użytkownik", "EARoot/EA1/EA3/EA2/EA166.htm", "5.png", "E490", "0", "", "Class0","{E0D9E86A-8029-4253-8D0F-C9761FD43927}");
+tocTab[tocTab.length] = new Array("0.1.3.2:8", "", "«Type» Zaplecze systemu notes AI", "EARoot/EA1/EA3/EA2/EA167.htm", "5.png", "E492", "0", "", "Class0","{8310DDA1-928F-4abc-9F2D-A66C7C8630CA}");
