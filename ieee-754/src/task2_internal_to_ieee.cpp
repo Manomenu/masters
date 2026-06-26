@@ -13,9 +13,10 @@ static void run(uint32_t internal) {
     std::cout << std::hex << std::uppercase << std::setfill('0');
     std::cout << "Kod wewnetrzny:  0x" << std::setw(8) << internal << '\n';
     print_internal_bits(internal);
-    std::cout << "\nIEEE 754:        0x" << std::setw(8) << ieee << '\n';
+    std::cout << std::hex << std::uppercase << std::setfill('0')
+              << "\nIEEE 754:        0x" << std::setw(8) << ieee << '\n';
     print_ieee_bits(ieee);
-    std::cout << std::dec << "\nWartosc:         " << bits_to_float(ieee) << '\n';
+    std::cout << std::dec << "\nWartosc:         " << internal_to_value(internal) << '\n';
     print_separator();
 }
 

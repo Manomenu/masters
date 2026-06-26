@@ -16,15 +16,18 @@ justfile
 sys_czas_rzecz_proj5_piotr_gugnowski_320690.pdf
   Raport projektu.
 
-task2_internal_to_ieee.exe
+Pliki wykonywalne powstają po komendzie `just build`:
+
+task2_internal_to_ieee[.exe]
   Zadanie 5.2: konwersja kodu wewnętrznego (NKB) → IEEE 754 (hex).
   Wejście:  32-bitowy ciąg binarny (kod binarny naturalny)
   Wyjście:  wzorzec bitowy IEEE 754 w postaci szesnastkowej
 
-task3_ieee_to_internal.exe
+task3_ieee_to_internal[.exe]
   Zadanie 5.3: konwersja IEEE 754 (hex) → kod wewnętrzny (hex).
   Wejście:  32-bitowa wartość IEEE 754 w postaci szesnastkowej (np. 0x41100000)
   Wyjście:  wzorzec bitowy kodu wewnętrznego w postaci szesnastkowej
+  Obsługuje liczby ujemne, ułamki < 1 oraz zero.
 
 === KATALOG src/ ===
 

@@ -1,7 +1,7 @@
 \documentclass[12pt,a4paper]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
-\usepackage[polish]{polski}
+\usepackage[polish]{babel}
 \usepackage{amsmath}
 \usepackage{amsfonts}
 \usepackage{amssymb}
@@ -83,15 +83,17 @@ Oba formaty są 32-bitowe. Struktura IEEE~754 single precision:
 z~niejawnym bitem wiodącym.
 
 Struktura kodu wewnętrznego \textbf{nie jest wprost podana w~treści
-zadania}. Zadanie~5.1 wymaga jednoznacznego wyznaczenia struktury przez
-analizę wzorców bitowych (weryfikacja poniżej).
+zadania}. Zadanie~5.1 wymaga jej jednoznacznego wyznaczenia przez
+analizę wzorców bitowych z~tabeli konwersji. Wymaganiem jest,
+aby format obsługiwał \textbf{liczby ujemne oraz wartości mniejsze od~1}
+(ułamki), dokładnie tak jak IEEE~754.
 
 \subsubsection*{Format IEEE~754 single precision}
 
 \begin{center}
 \begin{tabular}{|c|c|c|}
 \hline
-\textbf{Bit 31} & \textbf{Bity 30--23} & \textbf{Bity 22--0} \\
+\textbf{Bit 31} & \textbf{Bity 30-23} & \textbf{Bity 22-0} \\
 \hline
 znak $S$ (1 bit) & wykładnik ze~stałą $E_b$ (8 bitów) & mantysa $M$ (23 bity) \\
 \hline
@@ -108,37 +110,116 @@ Stała (bias) wykładnika wynosi $127$.
 
 \subsubsection*{Kod "wewnętrzny"}
 
-Na~podstawie tabeli konwersji (np.\ $9 \to \texttt{0x83100000}$,
-$65535 \to \texttt{0x8F7FFF00}$) wyznaczono strukturę bitową:
+Na~podstawie tabeli konwersji (np.\ $1 \to \texttt{0x80000000}$,
+$9 \to \texttt{0x83100000}$, $65535 \to \texttt{0x8F7FFF00}$) wyznaczono
+następującą strukturę bitową:
 
 \begin{center}
-\begin{tabular}{|c|c|c|c|}
+\begin{tabular}{|c|c|c|}
 \hline
-\textbf{Bit 31} & \textbf{Bity 30--24} & \textbf{Bit 23} & \textbf{Bity 22--0} \\
+\textbf{Bity 31-24} & \textbf{Bit 23} & \textbf{Bity 22-0} \\
 \hline
-"1" (wiodąca) & wykładnik $E$ bez stałej (7 bitów) & "0" (padding) & mantysa $M$ (23 bity) \\
+wykładnik ze~stałą $E_b$ (8 bitów, bias $128$) & znak $S$ (1 bit) & mantysa $M$ (23 bity) \\
 \hline
 \end{tabular}
 \end{center}
 
-Wartość liczby niezerowej:
+Wartość liczby znormalizowanej:
 \[
-  1 \times (1 + M \cdot 2^{-23}) \times 2^{\,E}
-  \qquad E \in [0,\,127],\quad M \in [0,\,2^{23}-1]
+  (-1)^S \times (1 + M \cdot 2^{-23}) \times 2^{\,E_b - 128}
+  \qquad E_b \in [1,\,254],\quad M \in [0,\,2^{23}-1]
 \]
 
-Zero kodowane jest jako \texttt{0x00000000}.
+\paragraph{Wyznaczenie nadmiaru z~tabeli.}
+Powyższą strukturę (w~tym wartość nadmiaru) odczytujemy wprost z~danych,
+bez żadnych założeń. Po~pierwsze, mantysa (bity~22-0) jest w~obu kodach
+identyczna, co widać np.\ dla liczby~9 (mantysa $=\texttt{0x100000}$ zarówno
+w~\texttt{0x83100000}, jak i~\texttt{0x41100000}) oraz~65535
+($\texttt{0x7FFF00}$ w~obu). Pozostaje wyznaczyć rolę najstarszych bitów.
+Dla każdej liczby z~tabeli znamy jej rzeczywisty wykładnik~$E$ (z~postaci
+znormalizowanej $1{,}M \times 2^E$). Porównajmy go z~8-bitowym polem w~bitach
+[31:24] kodu wewnętrznego oraz, dla kontroli, z~polem wykładnika IEEE~754
+(bity [30:23], o~znanym nadmiarze~$127$):
 
-Kluczowe właściwości kodu wewnętrznego w~porównaniu z~IEEE~754:
+\begin{table}[H]
+\centering
+\small
+\begin{tabular}{rrccc c}
+\toprule
+\textbf{Liczba} & $E$ & wewn.\ [31:24] & \textbf{wewn.\ $-\,E$} & IEEE [30:23] & IEEE $-\,E$ \\
+\midrule
+1     & 0  & $\texttt{0x80}=128$ & $\mathbf{128}$ & $\texttt{0x7F}=127$ & $127$ \\
+2     & 1  & $\texttt{0x81}=129$ & $\mathbf{128}$ & $\texttt{0x80}=128$ & $127$ \\
+9     & 3  & $\texttt{0x83}=131$ & $\mathbf{128}$ & $\texttt{0x82}=130$ & $127$ \\
+65535 & 15 & $\texttt{0x8F}=143$ & $\mathbf{128}$ & $\texttt{0x8E}=142$ & $127$ \\
+65536 & 16 & $\texttt{0x90}=144$ & $\mathbf{128}$ & $\texttt{0x8F}=143$ & $127$ \\
+\bottomrule
+\end{tabular}
+\caption{Wyprowadzenie nadmiaru. Pole [31:24] kodu wewnętrznego pomniejszone
+         o~rzeczywisty wykładnik daje \emph{stałą}~$128$ dla każdej liczby.}
+\end{table}
+
+Kolumna $\text{wewn.}-E$ jest stała i~równa~$128$ w~każdym wierszu. Dowodzi to,
+że bity [31:24] tworzą 8-bitowe pole wykładnika ze~stałą (nadmiarem)
+\textbf{128}. Analogiczna kolumna dla IEEE~754 jest stała i~równa~$127$
+(znany nadmiar standardu). Różnica nadmiarów wynosi dokładnie~$1$ i~to właśnie
+ona przekłada się dalej na relację wartości (połowa) i~prostą konwersję.
+Bit~23 we~wszystkich przykładach jest zerem (liczby dodatnie); jako jedyny
+wolny bit między wykładnikiem a~mantysą pełni rolę \textbf{bitu znaku},
+analogicznie do bitu~31 w~IEEE~754, co umożliwia liczby ujemne.
+
+\medskip
+Format jest zatem \textbf{w~pełni analogiczny do IEEE~754}: definiuje te same
+klasy liczb i~rezerwuje te same wartości pola wykładnika. Jedyne różnice to
+wyznaczone wyżej dwa parametry: nadmiar ($128$ zamiast $127$) oraz położenie
+bitu znaku (bit~23 zamiast bitu~31).
+
+\begin{center}
+\begin{tabular}{lll}
+\toprule
+$E_b$ & $M$ & Znaczenie (dokładnie jak w~IEEE~754) \\
+\midrule
+$0$        & $0$       & zero ze~znakiem: $+0 = \texttt{0x00000000}$, $-0 = \texttt{0x00800000}$ \\
+$0$        & $\neq 0$  & liczba zdenormalizowana: $(-1)^S \times (M\cdot2^{-23}) \times 2^{-127}$ \\
+$1\ldots254$ & dowolna & liczba znormalizowana: $(-1)^S \times (1 + M\cdot2^{-23}) \times 2^{E_b-128}$ \\
+$255$      & $0$       & $\pm\infty$ \\
+$255$      & $\neq 0$  & NaN \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsubsection*{Relacja wartości do IEEE~754 (klucz do konwersji)}
+
+Ponieważ jedyną różnicą \emph{liczbową} jest nadmiar (większy o~$1$), wartość
+słowa kodu wewnętrznego jest dokładnie \textbf{połową} wartości słowa IEEE~754
+zbudowanego z~tych samych pól (znak, wykładnik, mantysa):
+\[
+  \text{wartość}_{\text{wew}}(X) = \tfrac{1}{2}\,\text{wartość}_{\text{IEEE}}\bigl(\text{te same pola}\bigr).
+\]
+Tożsamość ta zachodzi dla \emph{wszystkich} klas liczb (sprawdzenie:
+dla znormalizowanej $2^{E_b-128} = 2^{E_b-127}/2$; dla zdenormalizowanej
+$2^{-127} = 2^{-126}/2$; a~$\pm\infty/2 = \pm\infty$, $0/2 = 0$). Dzięki niej
+konwersja w~obie strony sprowadza się do przeniesienia bitu znaku i~pomnożenia
+(lub podzielenia) wartości przez~$2$, co automatycznie zachowuje semantykę
+IEEE~754 dla znaku zera, liczb zdenormalizowanych, Inf/NaN, nadmiaru i~niedomiaru.
+
+\subsubsection*{Przypadek specjalny: zero}
+
+Zero jest przypadkiem szczególnym, bo nie da się go zapisać w~postaci
+znormalizowanej $1{,}M \times 2^E$ (brak niejawnej jedynki wiodącej).
+Tak jak w~IEEE~754, kod wewnętrzny rezerwuje na nie $E_b = 0$ (przy $M = 0$)
+i~\textbf{rozróżnia znak zera}: $+0 = \texttt{0x00000000}$ oraz
+$-0 = \texttt{0x00800000}$ (ustawiony bit znaku~23). Konwersja zachowuje znak
+zera w~obie strony: $+0 \leftrightarrow \texttt{0x00000000}$,
+$-0_{\text{IEEE}}\ (\texttt{0x80000000}) \leftrightarrow -0_{\text{wew}}\ (\texttt{0x00800000})$.
+W~przykładach z~tabeli konwersji występuje wyłącznie $+0$.
+
+Wszystkie liczby z~tabeli to dodatnie liczby całkowite, więc nie pokazują
+jeszcze obsługi znaku ani ułamków, lecz wynika ona wprost ze~struktury:
 \begin{itemize}
-  \item Brak znaku: format przeznaczony wyłącznie dla liczb nieujemnych.
-  \item Wykładnik \textbf{bez stałej} (unbiased): bezpośrednio wyraża potęgę dwójki,
-        co eliminuje konieczność dodawania/odejmowania stałej 127 przy operacjach
-        arytmetycznych.
-  \item Bit~31 jest jawnym bitem wiodącym "1" mantysy
-        (w~IEEE~754 bit ten jest niejawny: tzw.\ \textit{hidden bit}).
-  \item 7-bitowy wykładnik ogranicza zakres do $2^0$--$2^{127}$,
-        co jest wystarczające dla liczb naturalnych.
+  \item \textbf{liczby ujemne}: bit znaku $S = 1$ (np.\ $-9 = \texttt{0x83900000}$),
+  \item \textbf{ułamki $< 1$}: wykładnik ze~stałą $E_b < 128$, czyli $E < 0$
+        (np.\ $0{,}5 = \texttt{0x7F000000}$).
 \end{itemize}
 
 % -----------------------------------------------------------------------------
@@ -147,31 +228,43 @@ Kluczowe właściwości kodu wewnętrznego w~porównaniu z~IEEE~754:
 \begin{table}[H]
 \centering
 \small
-\begin{tabular}{rllll}
+\begin{tabular}{rlcccll}
 \toprule
-\textbf{Liczba} & \textbf{Kod wewnętrzny} & $E$ & $M$ & \textbf{IEEE 754}\\
+\textbf{Liczba} & \textbf{Kod wewn.} & $S$ & $E_b$ & $E$ & $M$ & \textbf{IEEE 754}\\
 \midrule
-0       & \texttt{0x00000000} & n/d & n/d & \texttt{0x00000000}\\
-1       & \texttt{0x80000000} & 0   & 0            & \texttt{0x3F800000}\\
-2       & \texttt{0x81000000} & 1   & 0            & \texttt{0x40000000}\\
-9       & \texttt{0x83100000} & 3   & \texttt{0x100000} & \texttt{0x41100000}\\
-65535   & \texttt{0x8F7FFF00} & 15  & \texttt{0x7FFF00} & \texttt{0x477FFF00}\\
-65536   & \texttt{0x90000000} & 16  & 0            & \texttt{0x47800000}\\
+0       & \texttt{0x00000000} & n/d & n/d & n/d & n/d & \texttt{0x00000000}\\
+1       & \texttt{0x80000000} & 0  & 128 & 0   & 0                 & \texttt{0x3F800000}\\
+2       & \texttt{0x81000000} & 0  & 129 & 1   & 0                 & \texttt{0x40000000}\\
+9       & \texttt{0x83100000} & 0  & 131 & 3   & \texttt{0x100000} & \texttt{0x41100000}\\
+65535   & \texttt{0x8F7FFF00} & 0  & 143 & 15  & \texttt{0x7FFF00} & \texttt{0x477FFF00}\\
+65536   & \texttt{0x90000000} & 0  & 144 & 16  & 0                 & \texttt{0x47800000}\\
+\midrule
+\multicolumn{7}{l}{\textit{przykłady spoza tabeli, demonstracja ułamków i~liczb ujemnych:}}\\
+$0{,}5$ & \texttt{0x7F000000} & 0  & 127 & $-1$ & 0                & \texttt{0x3F000000}\\
+$-1$    & \texttt{0x80800000} & 1  & 128 & 0   & 0                 & \texttt{0xBF800000}\\
+$-9$    & \texttt{0x83900000} & 1  & 131 & 3   & \texttt{0x100000} & \texttt{0xC1100000}\\
 \bottomrule
 \end{tabular}
-\caption{Weryfikacja struktury bitowej na danych z treści zadania.
-         Dla każdej liczby $E_{\text{IEEE}} = E + 127$.}
+\caption{Weryfikacja struktury bitowej. Dla każdej liczby
+         $E_{b,\text{IEEE}} = E_b - 1$, a~mantysa $M$ jest identyczna w~obu formatach.}
 \end{table}
 
 \noindent Przykładowo dla $9 = 1{,}001_2 \times 2^3$:
 \[
-  E = 3,\quad M = 0{,}001_2 = 2^{-3} \Rightarrow
-  M \cdot 2^{23} = 2^{20} = \texttt{0x100000}
+  S = 0,\quad E = 3 \Rightarrow E_b = 3 + 128 = 131 = \texttt{0x83},\quad
+  M = 0{,}001_2 \Rightarrow M \cdot 2^{23} = 2^{20} = \texttt{0x100000}
 \]
 \[
-  E_{\text{IEEE}} = 3 + 127 = 130 = \texttt{0x82} \Rightarrow
+  \text{wew} = (\texttt{0x83} \ll 24) \mid (0 \ll 23) \mid \texttt{0x100000}
+  = \texttt{0x83100000} \checkmark
+\]
+\[
+  E_{b,\text{IEEE}} = 131 - 1 = 130 = \texttt{0x82} \Rightarrow
   \text{IEEE} = (130 \ll 23) \mid \texttt{0x100000} = \texttt{0x41100000} \checkmark
 \]
+
+Dla liczby ujemnej $-9$ wystarczy ustawić bit znaku (bit~23):
+$\text{wew} = \texttt{0x83100000} \mid \texttt{0x00800000} = \texttt{0x83900000}$.
 
 % -----------------------------------------------------------------------------
 \subsection*{Zakresy}
@@ -184,31 +277,17 @@ Kluczowe właściwości kodu wewnętrznego w~porównaniu z~IEEE~754:
 \toprule
 \textbf{Parametr} & \textbf{Wartość} \\
 \midrule
-Zakres & $\{0\} \cup \bigl[1,\ (2-2^{-23})\cdot2^{127}\bigr]$ \\
-Minimalna wartość niezerowa & $1{,}0 \times 2^0 = 1$ \\
-Maksymalna wartość          & $(2 - 2^{-23}) \times 2^{127} \approx 3{,}403 \times 10^{38}$ \\
-Zakres wykładnika $E$       & $[0,\ 127]$ (7 bitów, bez stałej) \\
+Zakres & $\bigl[-(2-2^{-23})\cdot2^{126},\ (2-2^{-23})\cdot2^{126}\bigr]$ \\
+Maksymalna wartość          & $(2 - 2^{-23}) \times 2^{126} \approx 1{,}701 \times 10^{38}$ \\
+Min.\ wartość dodatnia znormalizowana & $2^{-127} \approx 5{,}877 \times 10^{-39}$ \\
+Min.\ wartość dodatnia zdenormalizowana & $2^{-150} \approx 7{,}006 \times 10^{-46}$ \\
+Zakres wykładnika $E$ (znorm.) & $[-127,\ 126]$ (8 bitów, bias $128$) \\
 Zakres mantysy $M$          & $[0,\ 2^{23}-1]$ (23 bity) \\
-Liczby ujemne               & brak \\
-Ułamki $< 1$                & brak \\
+Liczby ujemne / ułamki / Inf / NaN & tak (jak IEEE~754) \\
 \bottomrule
 \end{tabular}
 \caption{Zakres kodu "wewnętrznego".}
 \end{table}
-
-Maksymalna reprezentowalna liczba naturalna (dokładnie):
-\[
-  N_{\max} = (2 - 2^{-23}) \times 2^{127} = 2^{128} - 2^{104}
-  \approx 3{,}403 \times 10^{38}
-\]
-
-Największa liczba całkowita reprezentowana dokładnie (bez utraty precyzji):
-format dysponuje 23 bitami mantysy oraz jawnym bitem wiodącym w~bicie~31,
-co daje łącznie 24 bity znaczące.
-Największa liczba całkowita mieszcząca się w~24 bitach to same jedynki:
-\[
-  N_{\text{int,max}} = \underbrace{11\ldots1}_{24\text{ bity}} = 2^{24} - 1 = 16\,777\,215
-\]
 
 \subsubsection*{Standard IEEE~754 single precision}
 
@@ -219,11 +298,11 @@ Największa liczba całkowita mieszcząca się w~24 bitach to same jedynki:
 \textbf{Parametr} & \textbf{Wartość} \\
 \midrule
 Zakres & $\bigl[-(2-2^{-23})\cdot2^{127},\ (2-2^{-23})\cdot2^{127}\bigr]$ \\
-Minimalna wartość dodatnia & $2^{-126} \approx 1{,}175 \times 10^{-38}$ \\
+Minimalna wartość dodatnia (znormalizowana) & $2^{-126} \approx 1{,}175 \times 10^{-38}$ \\
 Maksymalna wartość & $(2 - 2^{-23}) \times 2^{127} \approx 3{,}403 \times 10^{38}$ \\
 Zakres wykładnika & $E \in [-126,\ +127]$ (bias $= 127$) \\
 Zakres mantysy $M$ & $[0,\ 2^{23}-1]$ (23 bity) \\
-Liczby ujemne & tak (bit znaku) \\
+Liczby ujemne & tak (bit znaku, bit~31) \\
 \bottomrule
 \end{tabular}
 \caption{Zakres standardu IEEE~754 single precision (32-bit).}
@@ -237,21 +316,28 @@ Liczby ujemne & tak (bit znaku) \\
 \toprule
 \textbf{Cecha} & \textbf{Kod wewnętrzny} & \textbf{IEEE 754} \\
 \midrule
-Zakres dodatni & $[1,\ (2-2^{-23})\cdot2^{127}]$ & $[2^{-126},\ (2-2^{-23})\cdot2^{127}]$ \\
-Wartości $< 1$ & nie & tak \\
-Liczby ujemne  & nie & tak \\
-Bity wykładnika & 7 (bez stałej) & 8 (stała 127) \\
-Bity mantysy   & 23 & 23 \\
+Liczby ujemne   & tak (bit~23) & tak (bit~31) \\
+Wartości $< 1$  & tak & tak \\
+Zero ze~znakiem ($\pm0$) & tak & tak \\
+Liczby zdenormalizowane & tak & tak \\
+Inf / NaN & tak & tak \\
+Bity wykładnika & 8 (bias $128$) & 8 (bias $127$) \\
+Bity mantysy    & 23 & 23 \\
+Zakres wykładnika $E$ (znorm.) & $[-127,\ 126]$ & $[-126,\ 127]$ \\
+Maksymalna wartość & $\approx 1{,}70 \times 10^{38}$ & $\approx 3{,}40 \times 10^{38}$ \\
 \bottomrule
 \end{tabular}
 \caption{Porównanie cech obu systemów kodowania.}
 \end{table}
 
-Oba formaty mają identyczną wartość maksymalną i~identyczne pole mantysy (23~bity).
-Różnica leży w~zakresie: IEEE~754 obsługuje ułamki i~liczby ujemne,
-kod wewnętrzny ogranicza się do liczb całkowitych $\geq 1$.
-W~zamian kod wewnętrzny jest prostszy sprzętowo: wykładnik bez stałej
-i~jawny bit wiodący eliminują dodatkowe operacje przy każdym obliczeniu.
+Oba formaty są \textbf{identyczne semantycznie}: te same klasy liczb (zero ze~znakiem,
+zdenormalizowane, znormalizowane, Inf/NaN), te same zarezerwowane wartości
+wykładnika, to samo 23-bitowe pole mantysy. Jedyna różnica liczbowa to nadmiar:
+bias~$128$ przesuwa cały zakres wykładnika o~jedną binadę w~dół względem IEEE~754
+($E \in [-127, 126]$ zamiast $[-126, 127]$). W~praktyce kod wewnętrzny sięga
+nieco niżej przy małych wartościach, a~IEEE~754 nieco wyżej przy dużych
+(maksimum większe o~czynnik~$2$). Jest to bezpośrednia, nieunikniona konsekwencja
+nadmiaru~$128$ wynikającego z~tabeli konwersji w~treści zadania.
 
 % ===============================================================================
 \section*{Zadanie 5.2: Konwersja kodu wewnętrznego do IEEE~754}
@@ -266,9 +352,8 @@ naturalnym.
 
 \subsection*{Implementacja}
 
-Aplikacja napisana w~C++17, kompilowalna na systemach Windows i~macOS
-(clang++ lub g++). Do budowania wymagany jest \texttt{just}.
-W~folderze projektu znajduje się skompilowana wersja dla systemu Windows.
+Aplikacja napisana w~C++17, kompilowalna na systemach Windows, macOS i~Linux
+(clang++ lub g++). Do budowania wymagany jest \texttt{just} (\texttt{just build}).
 Kod źródłowy składa się z~dwóch plików:
 
 \begin{itemize}
@@ -299,40 +384,55 @@ Aplikacja obsługuje dwa tryby:
 
 \subsubsection*{Algorytm konwersji: kod wewnętrzny $\to$ IEEE~754}
 
-Konwersja sprowadza się do trzech operacji bitowych:
+Wykorzystujemy tożsamość $\text{wartość}_{\text{wew}} = \tfrac{1}{2}\,\text{wartość}_{\text{IEEE}}$
+(z~sekcji~5.1). Algorytm:
 \begin{enumerate}[label=\arabic*.]
-  \item Wyodrębnienie wykładnika bez stałej $E$ z~bitów~[30:24].
-  \item Dodanie stałej~127: $E_b = E + 127$.
-  \item Złożenie słowa IEEE~754: bit znaku~$= 0$, wykładnik $= E_b$,
-        mantysa bez zmian.
+  \item Przełóż pola słowa wewnętrznego do~układu IEEE: znak z~bitu~23 na~bit~31,
+        wykładnik z~bitów~[31:24] na~[30:23], mantysa bez zmian.
+  \item Pomnóż tak uzyskaną wartość przez~$\tfrac{1}{2}$ (zmiana nadmiaru
+        $128 \to 127$). Wynikiem jest słowo IEEE~754.
 \end{enumerate}
+
+Dla liczb znormalizowanych krok~2 to po prostu zmniejszenie pola wykładnika
+o~$1$ ($E_{b,\text{IEEE}} = E_b - 1$) przy niezmienionej mantysie. Mnożenie
+realizowane sprzętowo (typ \texttt{float}) jest dokładne i~automatycznie
+odtwarza zachowanie IEEE~754 dla wszystkich pozostałych klas: znaku zera,
+liczb zdenormalizowanych, Inf/NaN oraz ewentualnego niedomiaru.
 
 \begin{lstlisting}
 uint32_t internal_to_ieee754(uint32_t internal) noexcept {
-    if (internal == 0u) return 0u;
-    const uint32_t E      = (internal >> 24u) & 0x7Fu;
-    const uint32_t mant   = internal & 0x007FFFFFu;
-    const uint32_t E_ieee = E + 127u;
-    return (E_ieee << 23u) | mant;
+    const uint32_t S    = (internal & 0x00800000u) ? 1u : 0u; // bit 23
+    const uint32_t E_b  = (internal >> 24u) & 0xFFu;          // bity [31:24]
+    const uint32_t mant = internal & 0x007FFFFFu;             // bity [22:0]
+    // te same pola w ukladzie IEEE (znak 31, wykladnik 30:23, mantysa 22:0)
+    const uint32_t as_ieee = (S << 31u) | (E_b << 23u) | mant;
+    // wartosc_wew = wartosc_ieee / 2   (nadmiar 128 -> 127)
+    return float_to_bits(bits_to_float(as_ieee) * 0.5f);
 }
 \end{lstlisting}
 
-\subsubsection*{Wyniki dla danych wzorcowych}
+\subsubsection*{Wyniki dla danych wzorcowych i~nowych przypadków}
 
 \begin{table}[H]
 \centering
+\small
 \begin{tabular}{rlll}
 \toprule
-\textbf{Liczba} & \textbf{Wejscie (kod binarny naturalny)} & \textbf{Kod wewn. (hex)} & \textbf{IEEE~754 (hex)} \\
+\textbf{Liczba} & \textbf{Wejście (kod binarny naturalny)} & \textbf{Kod wewn. (hex)} & \textbf{IEEE~754 (hex)} \\
 \midrule
 0     & \texttt{0000...0} (32 zera)              & \texttt{0x00000000} & \texttt{0x00000000} \\
-1     & \texttt{1000 0000 0000 ... 0000 0000}    & \texttt{0x80000000} & \texttt{0x3F800000} \\
-9     & \texttt{1000 0011 0001 0000 0000 0000} \ldots & \texttt{0x83100000} & \texttt{0x41100000} \\
-65535 & \texttt{1000 1111 0111 1111 1111 1111} \ldots & \texttt{0x8F7FFF00} & \texttt{0x477FFF00} \\
-65536 & \texttt{1001 0000 0000 ... 0000 0000}    & \texttt{0x90000000} & \texttt{0x47800000} \\
+1     & \texttt{1000 0000 0000 ... 0000}         & \texttt{0x80000000} & \texttt{0x3F800000} \\
+9     & \texttt{1000 0011 0001 0000} \ldots      & \texttt{0x83100000} & \texttt{0x41100000} \\
+65535 & \texttt{1000 1111 0111 1111} \ldots      & \texttt{0x8F7FFF00} & \texttt{0x477FFF00} \\
+65536 & \texttt{1001 0000 0000 ... 0000}         & \texttt{0x90000000} & \texttt{0x47800000} \\
+\midrule
+$0{,}5$ & \texttt{0111 1111 0000 ... 0000}       & \texttt{0x7F000000} & \texttt{0x3F000000} \\
+$-1$    & \texttt{1000 0000 1000 ... 0000}       & \texttt{0x80800000} & \texttt{0xBF800000} \\
+$-9$    & \texttt{1000 0011 1001 0000} \ldots    & \texttt{0x83900000} & \texttt{0xC1100000} \\
 \bottomrule
 \end{tabular}
-\caption{Wyniki konwersji: wejscie w kodzie binarnym naturalnym, wyjscie IEEE~754.}
+\caption{Wyniki konwersji: wejście w~kodzie binarnym naturalnym, wyjście IEEE~754.
+         Ostatnie trzy wiersze demonstrują obsługę ułamków i~liczb ujemnych.}
 \end{table}
 
 % ===============================================================================
@@ -346,7 +446,7 @@ do~postaci kodu "wewnętrznego".
 
 \subsection*{Implementacja}
 
-Aplikacja napisana w~C++17, kompilowalna na systemach Windows i~macOS
+Aplikacja napisana w~C++17, kompilowalna na systemach Windows, macOS i~Linux
 (clang++ lub g++). Kod źródłowy:
 
 \begin{itemize}
@@ -365,9 +465,9 @@ Przykłady wywołania:
 
 
 \begin{lstlisting}[language={},numbers=none]
-$ ./task3_ieee_to_internal 0x41100000
-$ ./task3_ieee_to_internal 477FFF00
-$ ./task3_ieee_to_internal 0x3F800000
+$ ./task3_ieee_to_internal 0x41100000     # 9
+$ ./task3_ieee_to_internal 0x3F000000     # 0,5
+$ ./task3_ieee_to_internal 0xC1100000     # -9
 \end{lstlisting}
 
 Aplikacja obsługuje dwa tryby:
@@ -376,43 +476,61 @@ Aplikacja obsługuje dwa tryby:
   \item \textbf{Tryb interaktywny}: aplikacja wyświetla prompt i~czeka na wejście.
 \end{enumerate}
 
-\subsubsection*{Walidacja wejścia}
+\subsubsection*{Zachowanie dla wszystkich klas liczb}
 
-Przed konwersją sprawdzane są warunki konieczne, gdyż zakres kodu wewnętrznego
-jest podzbiorem zakresu IEEE~754:
+Konwersja jest \emph{totalna}: każda wartość IEEE~754 ma odpowiednik w~kodzie
+wewnętrznym, a~zachowanie dla każdej klasy liczb jest \textbf{takie samo jak
+w~IEEE~754}:
 
 \begin{center}
 \begin{tabular}{ll}
 \toprule
-\textbf{Warunek} & \textbf{Komunikat błędu} \\
+\textbf{Wejście IEEE~754} & \textbf{Wynik (kod wewnętrzny)} \\
 \midrule
-Bit~31~$= 1$ (liczba ujemna) & liczba ujemna: niedozwolona \\
-$E_b = 255$ (Inf lub NaN)    & Inf/NaN: brak reprezentacji \\
-$E_b = 0$ (zdenormalizowana) & subnormal: poza zakresem \\
-$E = E_b - 127 < 0$          & wartość~$< 1$: poza zakresem \\
-$E > 127$                    & wykładnik~$> 127$: poza zakresem \\
+$\pm0$, liczba znormalizowana, zdenormalizowana & ta sama wartość (znak zachowany) \\
+$\pm\infty$, NaN                                & $\pm\infty$, NaN \\
+$|x| \geq 2^{127}$ (powyżej zakresu znorm.\ wewn.) & nadmiar $\to \pm\infty$ (jak w~IEEE) \\
 \bottomrule
 \end{tabular}
 \end{center}
 
+Nadmiar do~$\pm\infty$ przy największych liczbach IEEE~754 ($E = 127$) to
+dokładnie takie samo zachowanie, jakie standard przewiduje przy zawężającej
+konwersji (np.\ \texttt{double}~$\to$~\texttt{float}). Nie wprowadzamy żadnej
+własnej reguły.
+
+Niedomiar w~tym kierunku \emph{nie występuje}: zakres kodu wewnętrznego sięga
+niżej niż IEEE~754 (do~$2^{-150}$ wobec $2^{-149}$), więc każda liczba IEEE~754,
+łącznie ze~wszystkimi zdenormalizowanymi, jest reprezentowalna. Niedomiar
+pojawia się dopiero w~kierunku odwrotnym (zadanie~5.2), gdy najmniejsze liczby
+zdenormalizowane kodu wewnętrznego po~podzieleniu przez~$2$ spadają poniżej
+najmniejszej liczby IEEE~754.
+
 \subsubsection*{Algorytm konwersji: IEEE~754 $\to$ kod wewnętrzny}
+
+Symetrycznie do zadania~5.2 korzystamy z~tożsamości
+$\text{wartość}_{\text{IEEE}} = 2 \cdot \text{wartość}_{\text{wew}}$:
+mnożymy wartość przez~$2$ (nadmiar $127 \to 128$), a~następnie przekładamy pola
+do~układu wewnętrznego (znak z~bitu~31 na~bit~23). Dla liczb znormalizowanych
+sprowadza się to do zwiększenia pola wykładnika o~$1$ przy niezmienionej mantysie.
 
 \begin{lstlisting}
 uint32_t ieee754_to_internal(uint32_t ieee) noexcept {
-    if (ieee == 0u) return 0u;
-    // ... (walidacja jak w tabeli powyżej) ...
-    const uint32_t E_biased = (ieee >> 23u) & 0xFFu;
-    const uint32_t mant     = ieee & 0x007FFFFFu;
-    const int32_t  E        = static_cast<int32_t>(E_biased) - 127;
-    return 0x80000000u | (static_cast<uint32_t>(E) << 24u) | mant;
+    // wartosc_ieee(as_ieee) = 2 * wartosc_wejscia   (nadmiar 127 -> 128)
+    const uint32_t as_ieee = float_to_bits(bits_to_float(ieee) * 2.0f);
+    const uint32_t S    = (as_ieee >> 31u) & 1u;        // bit 31
+    const uint32_t E_b  = (as_ieee >> 23u) & 0xFFu;     // bity [30:23]
+    const uint32_t mant = as_ieee & 0x007FFFFFu;        // bity [22:0]
+    // uklad wewnetrzny: wykladnik w [31:24], znak na bit 23
+    return (E_b << 24u) | (S << 23u) | mant;
 }
 \end{lstlisting}
 
-Operacja jest dokładnie odwrotna do~zadania~5.2: zamiast dodawać stałą~127
-odejmujemy ją; zamiast zerować bit~31 ustawiamy go na~1.
-Mantysa (bity~22:0) pozostaje niezmieniona w~obu kierunkach.
+Mnożenie i~dzielenie przez~$2$ realizowane sprzętowo (typ \texttt{float}) są
+dokładne (zmieniają jedynie pole wykładnika) i~przenoszą całą semantykę IEEE~754
+na~kod wewnętrzny bez dodatkowego kodu obsługi przypadków szczególnych.
 
-\subsubsection*{Wyniki dla danych wzorcowych}
+\subsubsection*{Wyniki dla danych wzorcowych i~nowych przypadków}
 
 \begin{table}[H]
 \centering
@@ -420,15 +538,22 @@ Mantysa (bity~22:0) pozostaje niezmieniona w~obu kierunkach.
 \toprule
 \textbf{Liczba} & \textbf{IEEE~754 (wejście)} & \textbf{Kod wewnętrzny (wyjście)} \\
 \midrule
-0     & \texttt{0x00000000} & \texttt{0x00000000} \\
-1     & \texttt{0x3F800000} & \texttt{0x80000000} \\
-2     & \texttt{0x40000000} & \texttt{0x81000000} \\
-9     & \texttt{0x41100000} & \texttt{0x83100000} \\
-65535 & \texttt{0x477FFF00} & \texttt{0x8F7FFF00} \\
-65536 & \texttt{0x47800000} & \texttt{0x90000000} \\
+0       & \texttt{0x00000000} & \texttt{0x00000000} \\
+1       & \texttt{0x3F800000} & \texttt{0x80000000} \\
+2       & \texttt{0x40000000} & \texttt{0x81000000} \\
+9       & \texttt{0x41100000} & \texttt{0x83100000} \\
+65535   & \texttt{0x477FFF00} & \texttt{0x8F7FFF00} \\
+65536   & \texttt{0x47800000} & \texttt{0x90000000} \\
+\midrule
+$0{,}5$  & \texttt{0x3F000000} & \texttt{0x7F000000} \\
+$0{,}25$ & \texttt{0x3E800000} & \texttt{0x7E000000} \\
+$-1$     & \texttt{0xBF800000} & \texttt{0x80800000} \\
+$-9$     & \texttt{0xC1100000} & \texttt{0x83900000} \\
+$\pi$    & \texttt{0x40490FDB} & \texttt{0x81490FDB} \\
 \bottomrule
 \end{tabular}
-\caption{Wyniki konwersji IEEE~754 $\to$ kod wewnętrzny. Wejście i~wyjście w~postaci szesnastkowej.}
+\caption{Wyniki konwersji IEEE~754 $\to$ kod wewnętrzny. Ostatnie pięć wierszy
+         demonstruje obsługę ułamków i~liczb ujemnych.}
 \end{table}
 
 \end{document}

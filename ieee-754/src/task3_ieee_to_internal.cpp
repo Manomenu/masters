@@ -8,15 +8,15 @@
 
 static void run(uint32_t ieee) {
     const uint32_t internal = ieee754_to_internal(ieee);
-    if (internal == 0xFFFFFFFFu) return;
 
     print_separator();
     std::cout << std::hex << std::uppercase << std::setfill('0');
     std::cout << "IEEE 754:        0x" << std::setw(8) << ieee << '\n';
     print_ieee_bits(ieee);
-    std::cout << "\nKod wewnetrzny:  0x" << std::setw(8) << internal << '\n';
+    std::cout << std::hex << std::uppercase << std::setfill('0')
+              << "\nKod wewnetrzny:  0x" << std::setw(8) << internal << '\n';
     print_internal_bits(internal);
-    std::cout << std::dec << "\nWartosc:         " << bits_to_float(ieee) << '\n';
+    std::cout << std::dec << "\nWartosc:         " << ieee_to_value(ieee) << '\n';
     print_separator();
 }
 

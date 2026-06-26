@@ -89,21 +89,35 @@ $ ./task2_internal_to_ieee "1000 0011 0001 0000 0000 0000 0000 0000"
 | 9      | `0x41100000`           | `0x83100000`                 |
 | 65535  | `0x477FFF00`           | `0x8F7FFF00`                 |
 | 65536  | `0x47800000`           | `0x90000000`                 |
+| 0.5    | `0x3F000000`           | `0x7F000000`                 |
+| −9     | `0xC1100000`           | `0x83900000`                 |
+| π      | `0x40490FDB`           | `0x81490FDB`                 |
 
 ```
-$ ./task3_ieee_to_internal 0x41100000
-
-$ ./task3_ieee_to_internal 477FFF00
+$ ./task3_ieee_to_internal 0x41100000   # 9
+$ ./task3_ieee_to_internal 0x3F000000   # 0.5
+$ ./task3_ieee_to_internal 0xC1100000   # -9
 ```
 
-### Obsługiwane błędy
+Kod wewnętrzny jest **wiernym analogiem IEEE 754**: ma te same klasy liczb
+i te same wartości zarezerwowane, różni się tylko nadmiarem (128 zamiast 127)
+i położeniem bitu znaku (bit 23 zamiast 31). Obsługuje więc, dokładnie jak IEEE:
+liczby ujemne, ułamki < 1, **zero ze znakiem** (`+0 = 0x00000000`,
+`−0 = 0x00800000`), liczby zdenormalizowane oraz Inf/NaN.
 
-Program odrzuca wartości spoza zakresu kodu wewnętrznego:
+### Zachowanie dla przypadków szczególnych
 
-| Przypadek            | Przykład wejścia | Komunikat błędu                          |
-|----------------------|------------------|------------------------------------------|
-| Liczba ujemna        | `0xBF800000`     | liczba ujemna: niedozwolona              |
-| Inf / NaN            | `0x7F800000`     | Inf/NaN: brak reprezentacji              |
-| Liczba zdenorm.      | `0x00400000`     | subnormal: poza zakresem                 |
-| Wartość < 1.0        | `0x3F000000`     | wartość < 1: poza zakresem              |
-| Wykładnik > 127      | `0xFF000000`     | wykładnik > 127: poza zakresem           |
+Konwersja jest **totalna** (każda wartość ma odpowiednik) i odwzorowuje
+semantykę IEEE 754:
+
+| Wejście                          | Wynik                                   |
+|----------------------------------|-----------------------------------------|
+| `±0`, liczba (de)znormalizowana  | ta sama wartość, znak zachowany         |
+| `±∞`, NaN                        | `±∞`, NaN                               |
+| `\|x\| ≥ 2¹²⁷` (poza zakresem)    | nadmiar → `±∞` (jak zawężanie w IEEE)   |
+| `\|x\| < 2⁻¹⁵⁰`                   | niedomiar → `±0` (jak w IEEE)           |
+
+Wynika to z tożsamości `wartość_wewn = wartość_IEEE / 2` (różnica nadmiaru o 1).
+Implementacja realizuje konwersję przez przeniesienie bitu znaku i mnożenie/
+dzielenie wartości przez 2 — sprzętowa arytmetyka `float` sama poprawnie
+obsługuje wszystkie klasy liczb.
